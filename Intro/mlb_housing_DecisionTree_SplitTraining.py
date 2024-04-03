@@ -1,6 +1,6 @@
 import pandas as pd
 from pdb import set_trace
-import Utilities as Utils
+import utils.Utilities as Utils
 from sklearn.model_selection import train_test_split
 
 ## read the data and store data in DataFrame titled melbourne_data

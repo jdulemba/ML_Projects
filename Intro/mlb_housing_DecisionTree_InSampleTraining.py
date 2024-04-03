@@ -2,7 +2,7 @@ import pandas as pd
 from pdb import set_trace
 
 ## read the data and store data in DataFrame titled melbourne_data
-from Utilities import csv_to_pandas_DF
+from utils.Utilities import csv_to_pandas_DF
 melbourne_data = csv_to_pandas_DF("melb_data.csv")
 # print a summary of the data in Melbourne data
 melbourne_data.describe()
