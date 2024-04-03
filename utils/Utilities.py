@@ -46,7 +46,7 @@ def fit_ml_model(model_type, train_X, train_y, **model_opts):
 
     if model_type == "RandomForest":
         from sklearn.ensemble import RandomForestRegressor
-        model = RandomForestRegressor(random_state = rand_state)
+        model = RandomForestRegressor(**model_opts)
 
     # Fit model
     model.fit(train_X, train_y)
