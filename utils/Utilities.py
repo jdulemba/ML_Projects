@@ -1,6 +1,6 @@
 from pdb import set_trace
 
-def csv_to_pandas_DF(fname):
+def csv_to_pandas_DF(fname, **opts):
     """
     Read the data file if it exists and return it as a pandas DataFrame
     """
@@ -9,7 +9,7 @@ def csv_to_pandas_DF(fname):
 
     fpath = os.path.join("data", fname)
     try:
-        pd_df = pd.read_csv(fpath)
+        pd_df = pd.read_csv(fpath, **opts)
     except:
         raise ValueError(f"{fpath} could not be found")
 
@@ -37,12 +37,9 @@ def fit_ml_model(model_type, train_X, train_y, **model_opts):
     if model_type not in model_choices_:
         raise ValueError(f"Specified model_type {model_type} is not in {model_choices_}.")
 
-    rand_state = model_opts.get("random_state", 0)
-
     if model_type == "DecisionTree":
         from sklearn.tree import DecisionTreeRegressor
-        max_leafs = model_opts.get("max_leaf_nodes", None)
-        model = DecisionTreeRegressor(max_leaf_nodes = max_leafs, random_state = rand_state)
+        model = DecisionTreeRegressor(**model_opts)
 
     if model_type == "RandomForest":
         from sklearn.ensemble import RandomForestRegressor
