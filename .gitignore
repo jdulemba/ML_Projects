@@ -9,3 +9,7 @@
 .DS_Store
 
 SQL_*/
+
+HiggsDetection/data
+
+dl_intro/*lesson*
