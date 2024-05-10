@@ -49,3 +49,24 @@ def fit_ml_model(model_type, train_X, train_y, **model_opts):
     model.fit(train_X, train_y)
 
     return model
+
+
+def make_lags(ts, lags, lead_time=1):
+    import pandas as pd
+
+    return pd.concat(
+        {
+            f"y_lag_{i}": ts.shift(i)
+            for i in range(lead_time, lags + lead_time)
+        },
+        axis=1)
+
+def make_multistep_target(ts, steps, reverse=True):
+    import pandas as pd
+
+    range_it = reversed(range(steps)) if reverse else range(steps)
+    return pd.concat(
+        {f"y_step_{i + 1}": ts.shift(-i)
+         for i in range_it},
+        axis=1)
+
