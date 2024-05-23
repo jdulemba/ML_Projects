@@ -47,7 +47,8 @@ As a result,
 
 ## Discussion
 Results running the command `bash prep_train_test.sh DefaultConfig` can be found in `results/DefaultConfig/`. The results are shown for the 16 different resampling+classifier model combinations, with the context that no parameter optimization was attempted for any of them. The output from model testing is as follows:
-`---------- Model Training Completed ----------
+```
+---------- Model Training Completed ----------
 
                                        Cross_Val Precision    Recall        F1
 LogisticRegression No Sampling          0.999197  0.896154  0.652661  0.755267
@@ -66,4 +67,4 @@ LogisticRegression Over+Under-Sampling  0.964824  0.979003  0.913769  0.945262
 SGDClassifier Over+Under-Sampling       0.959045  0.984281  0.893618  0.936761
 DecisionTree Over+Under-Sampling        0.998593       1.0       1.0       1.0
 RandomForest Over+Under-Sampling        0.999832       1.0       1.0       1.0
-`
+```
