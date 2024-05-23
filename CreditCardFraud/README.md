@@ -42,6 +42,7 @@ As a result,
     - Evaluate the trained models created in step 4 using the testing data with the command `python src/model_testing.py jobdir [--debug] [--no_results] [--no_plots]` where `jobdir` is the same as the previous steps.
     - The results from testing the models are saved in `results/jobdir/TestingResults.pkl`.
     - Plots of the **Confusion Matrices**, **ROC** curves, **Precision-Recall** curves, and metrics using testing data are also created and saved in `results/jobdir/`.
-
+6. Running steps 3-5 at once (optional):
+    - Run command `bash prep_train_test.sh jobdir` in order to run preprocessing, model training, and model testing consecutively using the default config file.
 
 ## Discussion
