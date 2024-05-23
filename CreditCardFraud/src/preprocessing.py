@@ -88,7 +88,7 @@ if not args.no_plots:
     ax.set(title="Fraud Class Histogram", xlabel="Class", ylabel="Frequency")
     ax.set_yscale("log")
     
-    fname = os.path.join(resdir, "Fraud_Frequency_Histogram")
+    fname = os.path.join(resdir, "Preprocessing_Fraud_Frequency_Histogram")
     fig.savefig(fname, bbox_inches="tight")
     print(f"{fname} written")
     plt.close(fig)
@@ -102,7 +102,7 @@ if not args.no_plots:
         ax.ravel()[idx].plot(data[feature])
         ax.ravel()[idx].set_xlabel(feature)
     
-    fname = os.path.join(resdir, "Features_Distributions_vs_Index")
+    fname = os.path.join(resdir, "Preprocessing_Features_Distributions_vs_Index")
     fig.savefig(fname, bbox_inches="tight")
     print(f"{fname} written")
     plt.close(fig)
@@ -150,7 +150,7 @@ if not args.no_plots:
     ax[1, 1].set_xlim([np.min(data["scaled_time"].values), np.max(data["scaled_time"].values)])
     ax[1, 1].legend()
     
-    fname = os.path.join(resdir, f"Time_Amount_Original_vs_{scaler_type}Scaler_Distributions")
+    fname = os.path.join(resdir, f"Preprocessing_Time_Amount_Original_vs_{scaler_type}Scaler_Distributions")
     fig.savefig(fname, bbox_inches="tight")
     print(f"{fname} written")
     plt.close(fig)
