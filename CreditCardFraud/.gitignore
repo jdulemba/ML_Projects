@@ -3,6 +3,9 @@
 **/*.py[cod]
 **/*$py.class
 
-results
+results/*
+results/*/*.hdf5
+results/*/*.pkl
+!results/DefaultConfig/
 configs/
 !configs/default_config.json
