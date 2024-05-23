@@ -46,3 +46,24 @@ As a result,
     - Run command `bash prep_train_test.sh jobdir` in order to run preprocessing, model training, and model testing consecutively using the default config file.
 
 ## Discussion
+Results running the command `bash prep_train_test.sh DefaultConfig` can be found in `results/DefaultConfig/`. The results are shown for the 16 different resampling+classifier model combinations, with the context that no parameter optimization was attempted for any of them. The output from model testing is as follows:
+`---------- Model Training Completed ----------
+
+                                       Cross_Val Precision    Recall        F1
+LogisticRegression No Sampling          0.999197  0.896154  0.652661  0.755267
+SGDClassifier No Sampling               0.999092  0.878049  0.605042  0.716418
+DecisionTree No Sampling                0.999087       1.0       1.0       1.0
+RandomForest No Sampling                0.999508       1.0       1.0       1.0
+LogisticRegression Under-Sampling       0.935586  0.979351  0.929972  0.954023
+SGDClassifier Under-Sampling            0.908914  0.917808  0.938375  0.927978
+DecisionTree Under-Sampling             0.887964       1.0       1.0       1.0
+RandomForest Under-Sampling             0.938373       1.0       1.0       1.0
+LogisticRegression Over-Sampling        0.955002  0.980162  0.930028  0.954437
+SGDClassifier Over-Sampling              0.95414  0.978972  0.932736  0.955295
+DecisionTree Over-Sampling              0.999756       1.0       1.0       1.0
+RandomForest Over-Sampling              0.999952       1.0       1.0       1.0
+LogisticRegression Over+Under-Sampling  0.964824  0.979003  0.913769  0.945262
+SGDClassifier Over+Under-Sampling       0.959045  0.984281  0.893618  0.936761
+DecisionTree Over+Under-Sampling        0.998593       1.0       1.0       1.0
+RandomForest Over+Under-Sampling        0.999832       1.0       1.0       1.0
+`
