@@ -22,7 +22,26 @@ This project utilizes the "Credit Card Fraud Detection" [dataset](https://www.ka
 As a result,
     `F1  = 2 * TP / (2 * TP + FP + FN)`
     During model training, the **cross_val_score** using 5-fold cross validation is also computed. During testing, the **Receiver Operating Characteristic (ROC)** and **Precision-Recall** curves for each model are calculated, as well as the area under the curves.
+    **Confusion Matrices** for binary classification are also created during training and testing, which are a graphical representation of how models classify data as True Positives, True Negatives, False Positives, and False Negatives.
 
 
 ## Running the Code
+1. Get the data:
+    - Download the "Credit Card Fraud Detection" dataset discussed above and save it in the `data/` directory.
+2. Set global variables:
+    - Run the `source environment.sh` command to set environmental variables used throughout the project.
+3. Preprocess the data:
+    - Preprocess the data and save the output running the command `python src/preprocessing.py jobdir [--cfile CFILE] [--debug] [--no_results] [--no_plots]` where `jobdir` is the name of the output directory created in `results/`.
+    - `CFILE` is the name of the config file which specifies various values (such as the random state and training/testing fraction) for reproducibitily, as well as which sampling techniques and classifiers to train and test. `configs/default_config.json` is the default file to use unless another config file is created and specified.
+4. Train the models:
+    - Using the preprocessed data file from the previous step, run `python src/model_training.py jobdir [--debug] [--no_results] [--no_plots]` where `jobdir` is the same as in step 3.
+    - This script trains the resampling+classifier model combinations, specified in the config file, on the training data.
+    - The trained models and the results of different metrics are saved in the `results/jobdir/TrainingResults.pkl` file.
+    - Plots of the confusion matrices and training metrics for each model are also created and saved in `results/jobdir/`.
+5. Test the models:
+    - Evaluate the trained models created in step 4 using the testing data with the command `python src/model_testing.py jobdir [--debug] [--no_results] [--no_plots]` where `jobdir` is the same as the previous steps.
+    - The results from testing the models are saved in `results/jobdir/TestingResults.pkl`.
+    - Plots of the **Confusion Matrices**, **ROC** curves, **Precision-Recall** curves, and metrics using testing data are also created and saved in `results/jobdir/`.
 
+
+## Discussion
