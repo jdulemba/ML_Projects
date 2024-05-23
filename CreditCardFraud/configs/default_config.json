@@ -1,0 +1,20 @@
+{
+    "Random_State" : 1,
+    "Training_Frac" : 0.7,
+    "Scaler" : "Standard",
+    "Classifiers" : {
+        "LogisticRegression" : {},
+        "SGDClassifier" : {"loss" : "log_loss"},
+        "DecisionTree" : {},
+        "RandomForest" : {}
+    },
+    "Sampling Methods" : {
+        "No Sampling" : {},
+        "Under-Sampling" : {"sampling_strategy" : "majority"},
+        "Over-Sampling" : {"sampling_strategy" : "minority"},
+        "Over+Under-Sampling" : {
+            "over" : {"sampling_strategy" : 0.1},
+            "under" : {"sampling_strategy" : 0.5}
+        }
+    }
+}
