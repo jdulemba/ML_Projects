@@ -39,14 +39,16 @@ As a result,
     - The trained models and the results of different metrics are saved in the `results/jobdir/TrainingResults.pkl` file.
     - Plots of the confusion matrices and training metrics for each model are also created and saved in `results/jobdir/`.
 5. Test the models:
-    - Evaluate the trained models created in step 4 using the testing data with the command `python src/model_testing.py jobdir [--debug] [--no_results] [--no_plots]` where `jobdir` is the same as the previous steps.
+    - Evaluate the trained models created in step 4 using the unmodified (no resampling applied) testing data with the command `python src/model_testing.py jobdir [--debug] [--no_results] [--no_plots]` where `jobdir` is the same as the previous steps.
     - The results from testing the models are saved in `results/jobdir/TestingResults.pkl`.
     - Plots of the **Confusion Matrices**, **ROC** curves, **Precision-Recall** curves, and metrics using testing data are also created and saved in `results/jobdir/`.
 6. Running steps 3-5 at once (optional):
     - Run command `bash prep_train_test.sh jobdir` in order to run preprocessing, model training, and model testing consecutively using the default config file.
 
 ## Discussion
-Results running the command `bash prep_train_test.sh DefaultConfig` can be found in `results/DefaultConfig/`. The results are shown for the 16 different resampling+classifier model combinations, with the context that no parameter optimization was attempted for any of them. The output from model testing is as follows:
+Results running the command `bash prep_train_test.sh DefaultConfig` can be found in `results/DefaultConfig/`. The results are shown for the 16 different resampling+classifier model combinations, with the context that no parameter optimization was attempted for any of them.
+
+### Model Training Results
 ```
 ---------- Model Training Completed ----------
 
@@ -68,3 +70,32 @@ SGDClassifier Over+Under-Sampling       0.959045  0.984281  0.893618  0.936761
 DecisionTree Over+Under-Sampling        0.998593       1.0       1.0       1.0
 RandomForest Over+Under-Sampling        0.999832       1.0       1.0       1.0
 ```
+
+As can be seen in the table and the training **Confusion Matrices**, the DecisionTree and RandomForest classifiers are able to correctly identify and classify the fraud ann normal transactions in the traiing set, regardless of resampling method. For the other two models, the **Precision**, **Recall**, and **F1-score** values all increase substantially when any type of resampling occurs.
+
+### Model Testing Results
+```
+---------- Model Testing Completed ----------
+
+                                       Precision    Recall        F1
+LogisticRegression No Sampling          0.840426  0.585185  0.689956
+SGDClassifier No Sampling               0.826087  0.562963  0.669604
+DecisionTree No Sampling                0.733333  0.733333  0.733333
+RandomForest No Sampling                0.890756  0.785185  0.834646
+LogisticRegression Under-Sampling       0.042732  0.903704  0.081605
+SGDClassifier Under-Sampling            0.017888  0.911111  0.035088
+DecisionTree Under-Sampling             0.013958  0.888889  0.027485
+RandomForest Under-Sampling             0.056505  0.881481  0.106203
+LogisticRegression Over-Sampling        0.070885  0.896296  0.131379
+SGDClassifier Over-Sampling              0.06612  0.896296  0.123155
+DecisionTree Over-Sampling              0.741935  0.681481  0.710425
+RandomForest Over-Sampling              0.929825  0.785185  0.851406
+LogisticRegression Over+Under-Sampling  0.126087  0.859259  0.219905
+SGDClassifier Over+Under-Sampling        0.16259  0.837037  0.272289
+DecisionTree Over+Under-Sampling        0.449339  0.755556  0.563536
+RandomForest Over+Under-Sampling        0.797101  0.814815  0.805861
+```
+
+From this table, it can be seen that the RandomForest classifier has the highest **F1-score** for a given resampling method, and usually by a significant margin. Whereas during the training the "No Sampling" scores were significantly less than the other resampling techniques, the **F1-score** values during testing were much smaller for "Under-Sampling" than the others.
+
+Context is extremely important when analyzing the **ROC** and **Precision-Recall** curves. Real-world fraud detection systems usually handle hundreds of thousands to millions of on a daily basis, and so any False Positive Rate higher than 0.1% is too high and most of the **ROC** curve phase space is irrelevant. This is why a "zoomed in" plot of the **ROC** curves below this FPR was created. Seen in this plot, the "RandomForest Over+Under-Sampling" model has the best performance of all. 
