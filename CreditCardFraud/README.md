@@ -15,14 +15,17 @@ This project utilizes the "Credit Card Fraud Detection" [dataset](https://www.ka
     - DecisionTree
     - RandomForest
 4. The metrics which will be used to evaluate the different sampling-classifier combination are **Precision**, **Recall**, and **F1-score**. **Precision** is a model evaluation and performance metric that corresponds to the fraction of values that actually belong to a positive class out of all of the values which are predicted to belong to that class.
-    `Precision = Number of True Positives / (Number of True Positives + False Positives) = TP / (TP + FP)`.
+
+    `Precision = Number of True Positives / (Number of True Positives + False Positives) = TP / (TP + FP)`
 
     **Recall** corresponds to the fraction of values predicted to be of a positive class out of all the values that truly belong to the positive class (including false negatives). 
-    `Recall = Number of True Positives / (Number of True Positives + False Negatives) = TP / (TP + FN)`.
+
+    `Recall = Number of True Positives / (Number of True Positives + False Negatives) = TP / (TP + FN)`
 
      **F1-score** is a useful metric for measuring the performance for classification models using imbalanced data because it takes into account the type of errors, false positive and false negative, and not just the number of predictions that were incorrect, a necessity in areas like fraud prevention and other industry use cases. **F1-score** computes the harmonic average of precision and recall, where the relative contribution of both of these metrics are equal to **F1-score**.
 As a result,
-    `F1  = 2 * TP / (2 * TP + FP + FN)`.
+
+    `F1  = 2 * TP / (2 * TP + FP + FN)`
 
     During model training, the **cross_val_score** using 5-fold cross validation is also computed. During testing, the **Receiver Operating Characteristic (ROC)** and **Precision-Recall** curves for each model are calculated, as well as the area under the curves.
     **Confusion Matrices** for binary classification are also created during training and testing, which are a graphical representation of how models classify data as True Positives, True Negatives, False Positives, and False Negatives.
