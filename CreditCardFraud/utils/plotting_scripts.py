@@ -58,7 +58,7 @@ def plot_confusion_matrix(X, y, classifiers, data_type=""):
     return fig
 
 
-def plot_roc(X, y, classifiers):
+def plot_roc(X, y, classifiers, fpr_thresh=None):
     from sklearn.metrics import auc, roc_curve
     """
     This function takes features (X), targets (y), and a dictionary of classifiers as inputs and returns the ax object.
@@ -82,13 +82,21 @@ def plot_roc(X, y, classifiers):
         for class_name in class_list:
             classifier = classifiers[class_name]
             y_score = classifier.predict_proba(X)[:, 1] # index 1 is chosen because we're intersted in the 'fraud' class label
-            fpr, tpr, _ = roc_curve(y, y_score) # false positive rate, true positive rate
-            roc_auc = auc(fpr, tpr)
-            axs[-1].plot(fpr, tpr,lw=2, label=class_name+ " (area = %0.3f)" % roc_auc)
+            fpr, tpr, thresh = roc_curve(y, y_score) # false positive rate, true positive rate, threshold
+            if fpr_thresh is not None:
+                tpr, fpr = tpr[np.where(fpr <= fpr_thresh)], fpr[np.where(fpr <= fpr_thresh)]
+                if fpr.size <= 1: continue # skip plotting when there aren't enough values
 
-        axs[-1].plot([0, 1], [0, 1], color="k", lw=2, linestyle="--")
-        axs[-1].set_xlim(0.0, 1.0)
-        axs[-1].set_ylim(0.0, 1.05)
+            roc_auc = auc(fpr, tpr)
+            axs[-1].plot(fpr, tpr,lw=2, label=class_name+ " (AUC=%0.3f)" % roc_auc if fpr_thresh is None else class_name+ " (AUCx100=%0.3f)" % (roc_auc*100))
+
+        if fpr_thresh is not None:
+            axs[-1].plot([0, fpr_thresh], [0, 1], color="k", lw=2, linestyle="--")
+            axs[-1].autoscale()
+        else:
+            axs[-1].plot([0, 1], [0, 1], color="k", lw=2, linestyle="--")
+            axs[-1].set_xlim(0.0, 1.0)
+            axs[-1].set_ylim(0.0, 1.05)
         axs[-1].set(xlabel="False Positive Rate", ylabel="True Positive Rate")
         axs[-1].legend(loc="lower right")
         axs[-1].set_box_aspect(1)
@@ -129,8 +137,10 @@ def plot_precision_recall(X, y, classifiers):
             classifier = classifiers[class_name]
             y_score = classifier.predict_proba(X)[:, 1] # index 1 is chosen because we're intersted in the 'fraud' class label
             precision, recall, _ = precision_recall_curve(y, y_score) 
-            prec_recall_auc = auc(recall, precision)
-            axs[-1].plot(recall, precision,lw=2, label=class_name+ " (area = %0.3f)" % prec_recall_auc)
+            avg_prec = average_precision_score(y, y_score)
+            axs[-1].plot(recall, precision,lw=2, label=class_name+ " (AP=%0.3f)" % avg_prec)
+            #prec_recall_auc = auc(recall, precision)
+            #axs[-1].plot(recall, precision,lw=2, label=class_name+ " (area = %0.3f)" % prec_recall_auc)
     
         axs[-1].set_xlim(0.0, 1.0)
         axs[-1].set_ylim(0.0, 1.05)
