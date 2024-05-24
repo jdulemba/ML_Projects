@@ -19,7 +19,7 @@ if not args.no_plots:
 import pandas as pd
 import numpy as np
 
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support, top_k_accuracy_score
 
 ## check if output directory exists and make it if it doesn't
 res_dir = os.environ["RESULTS_DIR"]
