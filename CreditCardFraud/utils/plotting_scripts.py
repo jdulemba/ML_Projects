@@ -93,6 +93,7 @@ def plot_roc(X, y, classifiers, fpr_thresh=None):
         if fpr_thresh is not None:
             axs[-1].plot([0, fpr_thresh], [0, 1], color="k", lw=2, linestyle="--")
             axs[-1].autoscale()
+            axs[-1].set_xlim(0.0, fpr_thresh)
         else:
             axs[-1].plot([0, 1], [0, 1], color="k", lw=2, linestyle="--")
             axs[-1].set_xlim(0.0, 1.0)
