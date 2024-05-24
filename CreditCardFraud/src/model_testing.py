@@ -100,6 +100,15 @@ if not args.no_plots:
     print(f"{fname} written")
     fig.clear()
 
+        # make ROC curve using only false positive rates < 0.1%
+    fpr_thresh = 0.001
+    fig = plt_scripts.plot_roc(X=features, y=target, classifiers=trained_models_dict["Models"], fpr_thresh=fpr_thresh)
+    fname = os.path.join(resdir, f"Testing_ROC_AUC_{scale}Scaler_{str(fpr_thresh).replace('.', 'p')}")
+    fig.savefig(fname, bbox_inches="tight")
+    print(f"{fname} written")
+    fig.clear()
+
+
     # plot precision-recall curves for testing dataset
     fig = plt_scripts.plot_precision_recall(X=features, y=target, classifiers=trained_models_dict["Models"])
     fname = os.path.join(resdir, f"Testing_PrecisionRecall_AUC_{scale}Scaler")
