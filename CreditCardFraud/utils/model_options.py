@@ -62,8 +62,8 @@ def classifiers_dict_constructor(**opts):
         #classifiers["SVC"] = SVC(**opts["SVC"])
         ###"SVC": SVC(random_state=rand_state, probability=True, kernel="linear"), # set prob to True so 'predict_proba' can be used
 
-    if "XGBoost" in opts.keys():
-        raise ValueError("This classifier option isn't currently supported!")
-        #from xgboost import XGBClassifier
+    if ("XGBoost" in opts.keys()) or ("XGB" in opts.keys()):
+        from xgboost import XGBClassifier
+        classifiers["XGB"] = XGBClassifier(**opts["XGB"])
 
     return classifiers
