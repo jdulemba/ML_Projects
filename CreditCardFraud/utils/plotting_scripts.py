@@ -1,21 +1,19 @@
 from pdb import set_trace
 
-import seaborn as sns
-from matplotlib import pyplot as plt
-plt.style.use("seaborn-v0_8-whitegrid")
 # Set Matplotlib defaults
-plt.rc("figure", autolayout=True, figsize=(10, 10), titlesize=18, titleweight="bold")
-plt.rc("axes", labelweight="bold", labelsize="large", titleweight="bold", titlesize=14, titlepad=10)
-plot_params = dict(color="0.75", style=".-", markeredgecolor="0.25", markerfacecolor="0.25", legend=False)
-import matplotlib as mpl
+from matplotlib import pyplot as plt
+from utils.styles import style_dict
+plt.style.use(style_dict)
+
 import matplotlib.gridspec as gridspec
 
 import numpy as np
+import pandas as pd
 
 
 def plot_confusion_matrix(X, y, classifiers, data_type=""):
+    import seaborn as sns
     from sklearn.metrics import confusion_matrix
-    import pandas as pd
 
     class_names = { 0 : "Not Fraud", 1 : "Fraud"}
     nclassifiers = len(list(classifiers.keys()))
@@ -40,7 +38,7 @@ def plot_confusion_matrix(X, y, classifiers, data_type=""):
         axs.append(fig.add_subplot(gs[idx]))
         sns.heatmap(cm_df, annot=True, cbar=None, cmap="Blues", fmt="g", ax=axs[idx])
         axs[idx].set(xlabel="Predicted Class", ylabel="True Class")
-        axs[idx].set_title(key, size=10)
+        axs[idx].set_title(key)#, size=10)
         axs[idx].set_box_aspect(1)
 
     # rescale figure height to remove white space
@@ -190,5 +188,55 @@ def plot_pandas_df(df, data_type=""):
         fig.suptitle(f"{data_type} Results", y=0.9 if nrows == 1 else 1.04)
     else:
         fig.suptitle(f"{data_type} Results")
+
+    return fig
+
+def plot_gridsearch_results(classifier, class_type=""):
+    # determine number of rows and columns to be produced based on the size of the df
+    max_bins_per_axis = 30
+    results = ["mean_train_score", "std_train_score", "mean_test_score", "std_test_score"]
+    df = pd.DataFrame(classifier.cv_results_, columns=results)
+    nclass = df.shape[0]
+    ncols = 1
+    nrows = int(np.ceil(nclass/max_bins_per_axis))
+    bins_per_axis = int(np.ceil(nclass/nrows))
+
+
+    fig = plt.figure(constrained_layout=True, figsize=(15.0, 10.0))
+    gs = gridspec.GridSpec(ncols=ncols, nrows=nrows, figure=fig)
+    axs = []
+        #split DataFrame into chunks
+    df_list = [df.iloc[i:i+bins_per_axis, :] for i in range(0, len(df), bins_per_axis)]
+    for idx, df_chunk in enumerate(df_list):
+        axs.append(fig.add_subplot(gs[idx]))
+        axs[-1].set(ylabel=f"{classifier.scoring} Score")
+
+        axs[-1].plot(df_chunk["mean_train_score"], label="Training", color="darkorange", lw=2)
+        axs[-1].fill_between(
+            df_chunk.index.values,
+            df_chunk["mean_train_score"] - df_chunk["std_train_score"],
+            df_chunk["mean_train_score"] + df_chunk["std_train_score"],
+            alpha=0.2, color="darkorange", lw=2
+        )
+
+        axs[-1].plot(df_chunk["mean_test_score"], label="Cross-Validation", color="navy", lw=2)
+        axs[-1].fill_between(
+            df_chunk.index.values,
+            df_chunk["mean_test_score"] - df_chunk["std_test_score"],
+            df_chunk["mean_test_score"] + df_chunk["std_test_score"],
+            alpha=0.2, color="navy", lw=2
+        )
+        axs[-1].set_xlim(df_chunk.index.values[0], df_chunk.index.values[-1])
+
+    axs[0].legend(loc="upper right")
+    axs[-1].set(xlabel="Gridsearch Combination")
+
+    # rescale figure height to remove white space
+    if ncols * nrows > 1:
+        ax_max_height, fig_height = max([ax.get_position().ymax for ax in axs]), fig.get_size_inches()[-1]
+        fig.set_figheight(ax_max_height*fig_height)
+        fig.suptitle(f"{class_type} Validation Curves", y=0.9 if nrows == 1 else 1.04)
+    else:
+        fig.suptitle(f"{class_type} Validation Curves")
 
     return fig
