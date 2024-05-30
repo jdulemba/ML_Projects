@@ -28,13 +28,10 @@ from copy import deepcopy
 
 # plotting styles
 if not args.no_plots:
-    import seaborn as sns
-    from matplotlib import pyplot as plt
-    plt.style.use("seaborn-v0_8-whitegrid")
     # Set Matplotlib defaults
-    plt.rc("figure", autolayout=True, figsize=(11, 4), titlesize=18, titleweight="bold")
-    plt.rc("axes", labelweight="bold", labelsize="large", titleweight="bold", titlesize=14, titlepad=10)
-    plot_params = dict(color="0.75", style=".-", markeredgecolor="0.25", markerfacecolor="0.25", legend=False)
+    from matplotlib import pyplot as plt
+    from utils.styles import style_dict
+    plt.style.use(style_dict)
 
 import pandas as pd
 import numpy as np
@@ -47,6 +44,8 @@ res_dir = os.environ["RESULTS_DIR"]
 
 resdir = os.path.join(res_dir, args.jobdir)
 if not os.path.isdir(resdir): os.makedirs(resdir)
+pltdir = os.path.join(resdir, "Preprocessing")
+if not os.path.isdir(pltdir): os.makedirs(pltdir)
 
 ## get config parameters
 cfile = os.path.join(proj_dir, "configs", args.cfile)
@@ -82,28 +81,28 @@ target_name = "Class"
 if not args.no_plots:
     count_classes = data[target_name].value_counts().rename(index = class_names).sort_index()
     # plot frequency of fraud/not fraud
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(constrained_layout=True)
     count_classes.plot(kind="bar", ax=ax)
     [ax.text(idx, val, str(val)+f" ({val/np.sum(count_classes.values)*100:.2f}%)", ha="center") for idx, val in enumerate(count_classes.values)]
     ax.set(title="Fraud Class Histogram", xlabel="Class", ylabel="Frequency")
     ax.set_yscale("log")
     
-    fname = os.path.join(resdir, "Preprocessing_Fraud_Frequency_Histogram")
-    fig.savefig(fname, bbox_inches="tight")
+    fname = os.path.join(pltdir, "Preprocessing_Fraud_Frequency_Histogram")
+    fig.savefig(fname)
     print(f"{fname} written")
     plt.close(fig)
     
     
     # plot each of the variables to view their distributions
-    fig, ax = plt.subplots(5, 6, figsize = (15, 12))
+    fig, ax = plt.subplots(5, 6, figsize = (15, 12), constrained_layout=True)
     fig.suptitle("Feature Distributions")
     
     for idx, feature in enumerate([col for col in data.columns if col != target_name]):
         ax.ravel()[idx].plot(data[feature])
         ax.ravel()[idx].set_xlabel(feature)
     
-    fname = os.path.join(resdir, "Preprocessing_Features_Distributions_vs_Index")
-    fig.savefig(fname, bbox_inches="tight")
+    fname = os.path.join(pltdir, "Preprocessing_Features_Distributions_vs_Index")
+    fig.savefig(fname)
     print(f"{fname} written")
     plt.close(fig)
 
@@ -127,7 +126,7 @@ data["scaled_time"] = scaler.fit_transform(data["Time"].values.reshape(-1,1))
 
 if not args.no_plots:
     nbins = 20
-    fig, ax = plt.subplots(2, 2, figsize=(18,4))
+    fig, ax = plt.subplots(2, 2, figsize=(18,4), constrained_layout=True)
         # plot original values
     ax[0, 0].hist(data["Amount"].values, bins=nbins, color="r", label="Original")
     ax[0, 0].set_title("Distribution of Transaction Amount")
@@ -150,8 +149,8 @@ if not args.no_plots:
     ax[1, 1].set_xlim([np.min(data["scaled_time"].values), np.max(data["scaled_time"].values)])
     ax[1, 1].legend()
     
-    fname = os.path.join(resdir, f"Preprocessing_Time_Amount_Original_vs_{scaler_type}Scaler_Distributions")
-    fig.savefig(fname, bbox_inches="tight")
+    fname = os.path.join(pltdir, f"Preprocessing_Time_Amount_Original_vs_{scaler_type}Scaler_Distributions")
+    fig.savefig(fname)
     print(f"{fname} written")
     plt.close(fig)
 
