@@ -4,44 +4,50 @@ tic = time.time()
 from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument("jobdir", help="The job directory name used as the output directory for this and the subsequent script's output.")
+parser.add_argument("--optimize", action="store_true", help="Output all print statements for debugging purposes.")
 parser.add_argument("--debug", action="store_true", help="Output all print statements for debugging purposes.")
 parser.add_argument("--no_results", action="store_true", help="Suppress making output file.")
-parser.add_argument("--no_plots", action="store_true", help="Suppress making all plots.")
 args = parser.parse_args()
 
 from pdb import set_trace
 import os
-
-# plotting styles
-if not args.no_plots:
-    import utils.plotting_scripts as plt_scripts
-
 import pandas as pd
 import numpy as np
 from copy import deepcopy
 
 import utils.model_options as model_opts
+if args.optimize:
+    import utils.model_optimization as optimize_model
+        ## plotting styles
+    import utils.plotting_scripts as plt_scripts
 
 from sklearn.base import clone # needed for 'initializing' models for each resampling method
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support, confusion_matrix
 from sklearn.model_selection import cross_val_score
 
 ## check if output directory exists and make it if it doesn't
 resdir = os.path.join(os.environ["RESULTS_DIR"], args.jobdir)
 if not os.path.isdir(resdir):
     raise ValueError(f"{residr} could not be found. Please check if input is correct, otherwise run 'preprocessing.py'.")
+train_dir = os.path.join(resdir, "Training")
+if not os.path.isdir(train_dir): os.makedirs(train_dir)
+opt_dir = os.path.join(resdir, "ParameterOptimization")
+if not os.path.isdir(opt_dir): os.makedirs(opt_dir)
 
 # getting data
 inputfname = os.path.join(resdir, "processed_data.hdf5")
 try:
     with pd.HDFStore(inputfname) as storedata:
         features, target = storedata["training_features"].copy(), storedata["training_target"].copy()
+        if args.optimize:
+            test_features, test_target = storedata["testing_features"].copy(), storedata["testing_target"].copy()
         metadata = storedata.get_storer("training_features").attrs.metadata
     storedata.close()
 except:
     print(f"Could not get data from {inputfname}")
 
 scale = metadata["Scaler"]
+optimizer_algo = metadata["Optimizer"]
 
 # set random seeds for reproducibility
 rand_state = metadata["Random_State"]
@@ -49,31 +55,24 @@ np.random.seed(rand_state)
 
 
 # fit and evaluate models on training data
-def fit_train_models(X, y, classifiers=dict(), results_df=None):
+def fit_train_models(X, y, classifiers=dict()):
     ## fit and evaluate each classifier of the training set
-    if results_df is None:
-        results_df = pd.DataFrame(index=list(classifiers.keys()), columns=["Cross_Val", "Precision", "Recall", "F1"])
+    results = {}
 
     for key, classifier in classifiers.items():
         print(f"\n\tTraining {key}...")
         classifier.fit(X, y)
         cross_val_scores = cross_val_score(classifier, X, y, cv=5)
         precision, recall, f1, _ = precision_recall_fscore_support(y, classifier.predict(X), average="binary")
-        results_df.loc[key, :] = np.array([cross_val_scores.mean(), precision, recall, f1])
+
+        results[key] = {
+            "Precision" : precision, "Recall" : recall, "F1" : f1, "Cross_Val" : cross_val_scores.mean(),
+            "Confusion_Matrix" : confusion_matrix(y, classifier.predict(X)),
+        }
+
         print(f"\tFinished training {key}.")
 
-    # create and plot confustion matrix for each classifier
-    if not args.no_plots:
-        fig = plt_scripts.plot_confusion_matrix(X=X, y=y, classifiers=classifiers, data_type="Training")
-        class_pipename = sorted(set(["_".join(key.split(" ")[1:]) for key in classifiers.keys()]))[0]
-        fname = os.path.join(resdir, f"Training_ConfusionMatrix_{scale}Scaler_{class_pipename.replace(' ', '_')}")
-        fig.savefig(fname, bbox_inches="tight")
-        print(f"{fname} written")
-        fig.clear()
-
-    return results_df, classifiers
-
-
+    return results, classifiers
 
 
 # define and make pipeline for resampling methods
@@ -98,8 +97,7 @@ classifier_opts = deepcopy(metadata["Classifiers"])
 classifier_opts = update_dict(classifier_opts)
 classifiers_options = model_opts.classifiers_dict_constructor(**classifier_opts)
 
-classifiers_results = {}
-training_results_df = pd.DataFrame(columns=["Cross_Val", "Precision", "Recall", "F1"])
+classifiers_dict, results_dict = {}, {}
 
 
     # perform testing and analysis for each type of resampling strategy
@@ -119,29 +117,43 @@ for pipe_name, pipeline in pipelines_dict.items():
         print(f"Number of fraud transactions: {np.sum(y_res == 1)} ({np.sum(y_res == 1)/len(y_res)}%)")
 
 
-        # create temp dict of classifiers to add to the results dict
-    tmp_classifiers_dict = {f"{key} {pipe_name}" : clone(val) for key, val in classifiers_options.items()}
-    training_results_df, tmp_classifiers_dict = fit_train_models(X=X_res, y=y_res, classifiers=tmp_classifiers_dict, results_df=training_results_df)
-    classifiers_results.update(tmp_classifiers_dict)
+    if args.optimize:
+            # create temp dict of classifiers to add to the results dict
+        tmp_classifiers_dict = {f"{key} {pipe_name} {optimizer_algo}" : None for key in classifiers_options.keys()}
+        #set_trace()
+        for key, val in classifiers_options.items():
+            clf = optimize_model.optimize_model(
+                classifier=val, algo=optimizer_algo,
+                data={"X_train" : X_res.copy(), "y_train" : y_res.copy(), "X_test" : test_features.copy(), "y_test" : test_target.copy()}
+            )
+                # plot score for each hyperparameter combination
+            fig = plt_scripts.plot_gridsearch_results(clf, class_type=f"{key} {pipe_name} {optimizer_algo}")
+            fname = os.path.join(opt_dir, f"{key}_{pipe_name.replace(' ', '_')}_{scale}Scaler_ValidationCurves_ModelOptimized{optimizer_algo}")
+            fig.savefig(fname)
+            print(f"{fname} written")
+            fig.clear()
 
-print(f"\n\n---------- Model Training Completed ----------\n\n{training_results_df}")
+            tmp_classifiers_dict[f"{key} {pipe_name} {optimizer_algo}"] = clf.best_estimator_
 
-# save training results as plots
-if not args.no_plots:
-    fig = plt_scripts.plot_pandas_df(training_results_df.transpose(), data_type="Training")
-    fname = os.path.join(resdir, f"Training_Results_Table_{scale}Scaler.png")
-    fig.savefig(fname, bbox_inches="tight")
-    print(f"{fname} written")
-    fig.clear()
+    else: # use default classifiers
+        tmp_classifiers_dict = {f"{key} {pipe_name} Default" : clone(val) for key, val in classifiers_options.items()}
+    tmp_results_dict, tmp_classifiers_dict = fit_train_models(X=X_res, y=y_res, classifiers=tmp_classifiers_dict)
+    classifiers_dict.update(tmp_classifiers_dict)
+    results_dict.update(tmp_results_dict)
+
+
+print(f"\n\n---------- Model Training Completed ----------\n\n{pd.DataFrame(results_dict, columns=list(results_dict.keys()), index=['Cross_Val', 'Precision', 'Recall', 'F1']).transpose()}")
 
 
 # save results as pickle file
 if not args.no_results:
-    outfname = os.path.join(resdir, "TrainingResults.pkl")
+    outfname = os.path.join(resdir, "TrainingResults_DefaultModels.pkl") if not args.optimize else\
+        os.path.join(resdir, f"TrainingResults_ModelOptimized{optimizer_algo}.pkl")
+
     outdict = {
         "MetaData" : metadata,
-        "Models" : classifiers_results,
-        "Train_Results" : training_results_df.to_dict(),
+        "Models" : classifiers_dict,
+        "Train_Results" : results_dict,
     }
     
     import pickle
