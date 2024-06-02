@@ -10,13 +10,11 @@ import matplotlib.gridspec as gridspec
 import numpy as np
 import pandas as pd
 
-
-def plot_confusion_matrix(X, y, classifiers, data_type=""):
+def plot_confusion_matrix(df, data_type=""):
     import seaborn as sns
-    from sklearn.metrics import confusion_matrix
 
     class_names = { 0 : "Not Fraud", 1 : "Fraud"}
-    nclassifiers = len(list(classifiers.keys()))
+    nclassifiers = len(df)
     max_ncols = 4
     if nclassifiers <= 3:
         nrows = 1
@@ -30,15 +28,14 @@ def plot_confusion_matrix(X, y, classifiers, data_type=""):
     fig = plt.figure(constrained_layout=True)
     gs = gridspec.GridSpec(ncols=ncols, nrows=nrows, figure=fig)
     axs = []
-    for idx, (key, classifier) in enumerate(classifiers.items()):
-        conf_matrix = confusion_matrix(y, classifier.predict(X))
-        cm_df = pd.DataFrame(conf_matrix, index=class_names.values(), columns=class_names.values())
+    for idx, key in enumerate(df.index):
+        cm_df = pd.DataFrame(df.loc[key, :].values[0], index=class_names.values(), columns=class_names.values())
     
             # plot confusion matrix to visualize how correct the model is at predicting fraud/not fraud
         axs.append(fig.add_subplot(gs[idx]))
         sns.heatmap(cm_df, annot=True, cbar=None, cmap="Blues", fmt="g", ax=axs[idx])
         axs[idx].set(xlabel="Predicted Class", ylabel="True Class")
-        axs[idx].set_title(key)#, size=10)
+        axs[idx].set_title(key, size=14 if nclassifiers > 2 else 20)
         axs[idx].set_box_aspect(1)
 
     # rescale figure height to remove white space
@@ -56,13 +53,21 @@ def plot_confusion_matrix(X, y, classifiers, data_type=""):
     return fig
 
 
-def plot_roc(X, y, classifiers, fpr_thresh=None):
-    from sklearn.metrics import auc, roc_curve
-    """
-    This function takes features (X), targets (y), and a dictionary of classifiers as inputs and returns the ax object.
-    """
+def plot_roc(df, fpr_thresh=None):
+    from sklearn.metrics import auc
+    def partial_auc(fpr, tpr, max_fpr):
+        "Taken from here https://github.com/scikit-learn/scikit-learn/blob/f3f51f9b611bf873bd5836748647221480071a87/sklearn/metrics/_ranking.py#L350-L356"
+        # Add a single point at max_fpr by linear interpolation
+        stop = np.searchsorted(fpr, max_fpr, "right")
+        x_interp = [fpr[stop - 1], fpr[stop]]
+        y_interp = [tpr[stop - 1], tpr[stop]]
+        tpr = np.append(tpr[:stop], np.interp(max_fpr, x_interp, y_interp))
+        fpr = np.append(fpr[:stop], max_fpr)
+    
+        return auc(fpr, tpr)
+
     max_labels_per_axis = 6
-    nclassifiers = len(list(classifiers.keys()))
+    nclassifiers = len(df)
     ncols = int(np.ceil(nclassifiers/max_labels_per_axis)) if nclassifiers < 16 else int(np.ceil(nclassifiers/4))
     nrows = 1
     labels_per_axis = int(np.ceil(nclassifiers/ncols))
@@ -73,29 +78,22 @@ def plot_roc(X, y, classifiers, fpr_thresh=None):
     gs = gridspec.GridSpec(ncols=ncols, nrows=nrows, figure=fig)
     axs = []
 
-        #split classifiers into chunks
-    class_list_splitting = [list(classifiers.keys())[i:i+labels_per_axis] for i in range(0, nclassifiers, labels_per_axis)]
-    for idx, class_list in enumerate(class_list_splitting):
+        #split DataFrame into chunks
+    df_list = [df.iloc[i:i+labels_per_axis, :] for i in range(0, nclassifiers, labels_per_axis)]
+    for idx, df_chunk in enumerate(df_list):
         axs.append(fig.add_subplot(gs[idx]))
-        for class_name in class_list:
-            classifier = classifiers[class_name]
-            y_score = classifier.predict_proba(X)[:, 1] # index 1 is chosen because we're intersted in the 'fraud' class label
-            fpr, tpr, thresh = roc_curve(y, y_score) # false positive rate, true positive rate, threshold
-            if fpr_thresh is not None:
-                tpr, fpr = tpr[np.where(fpr <= fpr_thresh)], fpr[np.where(fpr <= fpr_thresh)]
-                if fpr.size <= 1: continue # skip plotting when there aren't enough values
-
+        # plot curve for each classifier
+        for class_name in df_chunk.index:
+            fpr, tpr, thresh = df_chunk.loc[class_name, ["ROC_FPR", "ROC_TPR", "ROC_Thresh"]]
             roc_auc = auc(fpr, tpr)
+            if fpr_thresh is not None:
+                roc_auc = partial_auc(fpr, tpr, max_fpr=fpr_thresh)
+
             axs[-1].plot(fpr, tpr,lw=2, label=class_name+ " (AUC=%0.3f)" % roc_auc if fpr_thresh is None else class_name+ " (AUCx100=%0.3f)" % (roc_auc*100))
 
-        if fpr_thresh is not None:
-            axs[-1].plot([0, fpr_thresh], [0, 1], color="k", lw=2, linestyle="--")
-            axs[-1].autoscale()
-            axs[-1].set_xlim(0.0, fpr_thresh)
-        else:
-            axs[-1].plot([0, 1], [0, 1], color="k", lw=2, linestyle="--")
-            axs[-1].set_xlim(0.0, 1.0)
-            axs[-1].set_ylim(0.0, 1.05)
+        axs[-1].plot([0, 1 if fpr_thresh is None else fpr_thresh], [0, 1], color="k", lw=2, linestyle="--")
+        axs[-1].set_xlim(0.0, 1.0 if fpr_thresh is None else fpr_thresh)
+        axs[-1].set_ylim(0.0, 1.05)
         axs[-1].set(xlabel="False Positive Rate", ylabel="True Positive Rate")
         axs[-1].legend(loc="lower right")
         axs[-1].set_box_aspect(1)
@@ -111,13 +109,9 @@ def plot_roc(X, y, classifiers, fpr_thresh=None):
     return fig
 
 
-def plot_precision_recall(X, y, classifiers):
-    from sklearn.metrics import auc, precision_recall_curve, average_precision_score
-    """
-    This function takes features (X), targets (y), and a dictionary of classifiers as inputs and returns the ax object.
-    """
+def plot_precision_recall(df):
     max_labels_per_axis = 6
-    nclassifiers = len(list(classifiers.keys()))
+    nclassifiers = len(df)
     ncols = int(np.ceil(nclassifiers/max_labels_per_axis)) if nclassifiers < 16 else int(np.ceil(nclassifiers/4))
     nrows = 1
     labels_per_axis = int(np.ceil(nclassifiers/ncols))
@@ -128,18 +122,13 @@ def plot_precision_recall(X, y, classifiers):
     gs = gridspec.GridSpec(ncols=ncols, nrows=nrows, figure=fig)
     axs = []
 
-        #split classifiers into chunks
-    class_list_splitting = [list(classifiers.keys())[i:i+labels_per_axis] for i in range(0, nclassifiers, labels_per_axis)]
-    for idx, class_list in enumerate(class_list_splitting):
+        #split DataFrame into chunks
+    df_list = [df.iloc[i:i+labels_per_axis, :] for i in range(0, nclassifiers, labels_per_axis)]
+    for idx, df_chunk in enumerate(df_list):
         axs.append(fig.add_subplot(gs[idx]))
-        for class_name in class_list:
-            classifier = classifiers[class_name]
-            y_score = classifier.predict_proba(X)[:, 1] # index 1 is chosen because we're intersted in the 'fraud' class label
-            precision, recall, _ = precision_recall_curve(y, y_score) 
-            avg_prec = average_precision_score(y, y_score)
+        for class_name in df_chunk.index:
+            precision, recall, thresh, avg_prec = df_chunk.loc[class_name, :]
             axs[-1].plot(recall, precision,lw=2, label=class_name+ " (AP=%0.3f)" % avg_prec)
-            #prec_recall_auc = auc(recall, precision)
-            #axs[-1].plot(recall, precision,lw=2, label=class_name+ " (area = %0.3f)" % prec_recall_auc)
     
         axs[-1].set_xlim(0.0, 1.0)
         axs[-1].set_ylim(0.0, 1.05)
@@ -158,7 +147,8 @@ def plot_precision_recall(X, y, classifiers):
     return fig
 
 
-def plot_pandas_df(df, data_type=""):
+
+def plot_df(df, data_type=""):
     # determine number of rows and columns to be produced based on the size of the df
     max_labels_per_axis = 6
     nclass = df.shape[-1]
