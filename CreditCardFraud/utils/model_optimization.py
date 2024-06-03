@@ -1,5 +1,4 @@
 from pdb import set_trace
-#import os
 
 from sklearn.base import clone # needed for 'initializing' models for each resampling method
 
@@ -25,6 +24,7 @@ def optimize_gridsearchcv(classifier, X_train, y_train, X_test=None, y_test=None
         clf.fit(X_train, y_train, eval_set=[(X_test, y_test)], verbose=False)
     
     return clf
+
 
 
 def optimize_model(classifier, algo:str, data=dict(X_train=None, y_train=None, X_test=None, y_test=None)):
