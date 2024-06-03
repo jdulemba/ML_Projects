@@ -31,7 +31,7 @@ try:
 except:
     raise ValueError(f"Could not open {input_fname}.")
 
-scale = results_dict["MetaData"]["Scaler"]
+scale = results_dict["MetaData"]["MetaData"]["Scaler"]
 
 
 if args.res_type == "Train":
@@ -44,8 +44,8 @@ if args.res_type == "Train":
     fig.clear()
 
     # plot confusion matrices
-    fig = plt_scripts.plot_confusion_matrix(df=results_df.loc[["Confusion_Matrix"], :].transpose(), data_type="Testing")
-    fname = os.path.join(output_dir, f"Testing_ConfusionMatrix_{scale}Scaler")
+    fig = plt_scripts.plot_confusion_matrix(df=results_df.loc[["Confusion_Matrix"], :].transpose(), data_type=f"{args.res_type}ing")
+    fname = os.path.join(output_dir, f"{args.res_type}ing_ConfusionMatrix_{scale}Scaler")
     fig.savefig(fname)
     print(f"{fname} written")
     fig.clear()
@@ -55,7 +55,6 @@ if args.res_type == "Train":
 if args.res_type == "Test":
     # plot metric results
     results_df = pd.DataFrame(results_dict[f"{args.res_type}_Results"])
-    #fig = plt_scripts.plot_pandas_df(pd.DataFrame(results), data_type=f"{args.res_type}ing")
     fig = plt_scripts.plot_df(results_df.loc[["Precision", "Recall", "F1"], :], data_type=f"{args.res_type}ing")
     fname = os.path.join(output_dir, f"{args.res_type}ing_Results_Table_{scale}Scaler")
     fig.savefig(fname)
@@ -87,7 +86,6 @@ if args.res_type == "Test":
     #set_trace()
 
     # plot precision-recall curves for testing dataset
-    #fig = plt_scripts.plot_precision_recall(X=features, y=target, classifiers=trained_models_dict["Models"])
     fig = plt_scripts.plot_precision_recall(df=results_df.loc[[col for col in results_df.index if "PRCurve" in col], :].transpose())
     fname = os.path.join(output_dir, f"Testing_PrecisionRecall_AUC_{scale}Scaler")
     fig.savefig(fname)
