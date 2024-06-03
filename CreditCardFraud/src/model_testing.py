@@ -19,8 +19,6 @@ res_dir = os.environ["RESULTS_DIR"]
 resdir = os.path.join(res_dir, args.jobdir)
 if not os.path.isdir(resdir):
     raise ValueError(f"{residr} could not be found. Please check if input is correct, otherwise run 'preprocessing.py'.")
-test_dir = os.path.join(resdir, "Testing")
-if not os.path.isdir(test_dir): os.makedirs(test_dir)
 
 # open file which has traiing results
 import pickle
@@ -42,9 +40,9 @@ try:
 except:
     print(f"Could not get data from {inputfname}")
 
-scale = metadata["Scaler"]
+scale = metadata["MetaData"]["Scaler"]
 # set random seeds for reproducibility
-rand_state = metadata["Random_State"]
+rand_state = metadata["MetaData"]["Random_State"]
 np.random.seed(rand_state)
 
 
