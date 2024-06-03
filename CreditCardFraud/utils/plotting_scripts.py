@@ -33,10 +33,12 @@ def plot_confusion_matrix(df, data_type=""):
     
             # plot confusion matrix to visualize how correct the model is at predicting fraud/not fraud
         axs.append(fig.add_subplot(gs[idx]))
-        sns.heatmap(cm_df, annot=True, cbar=None, cmap="Blues", fmt="g", ax=axs[idx])
+        sns.heatmap(cm_df, annot=True, cbar=None, cmap="Blues", fmt="g", ax=axs[idx], annot_kws={"size": 12})
         axs[idx].set(xlabel="Predicted Class", ylabel="True Class")
         axs[idx].set_title(key, size=10 if nclassifiers > 2 else 20)
         axs[idx].set_box_aspect(1)
+        axs[idx].grid(False)
+        axs[idx].tick_params(axis="both", which="both", left=False, right=False, top=False, bottom=False)
 
     # rescale figure height to remove white space
     if ncols * nrows > 1:
