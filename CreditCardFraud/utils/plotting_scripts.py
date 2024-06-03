@@ -35,7 +35,7 @@ def plot_confusion_matrix(df, data_type=""):
         axs.append(fig.add_subplot(gs[idx]))
         sns.heatmap(cm_df, annot=True, cbar=None, cmap="Blues", fmt="g", ax=axs[idx])
         axs[idx].set(xlabel="Predicted Class", ylabel="True Class")
-        axs[idx].set_title(key, size=14 if nclassifiers > 2 else 20)
+        axs[idx].set_title(key, size=10 if nclassifiers > 2 else 20)
         axs[idx].set_box_aspect(1)
 
     # rescale figure height to remove white space
@@ -95,7 +95,7 @@ def plot_roc(df, fpr_thresh=None):
         axs[-1].set_xlim(0.0, 1.0 if fpr_thresh is None else fpr_thresh)
         axs[-1].set_ylim(0.0, 1.05)
         axs[-1].set(xlabel="False Positive Rate", ylabel="True Positive Rate")
-        axs[-1].legend(loc="lower right")
+        axs[-1].legend(loc="lower right", fontsize=10)
         axs[-1].set_box_aspect(1)
 
     # rescale figure height to remove white space
@@ -133,7 +133,7 @@ def plot_precision_recall(df):
         axs[-1].set_xlim(0.0, 1.0)
         axs[-1].set_ylim(0.0, 1.05)
         axs[-1].set(xlabel="Recall", ylabel="Precision")
-        axs[-1].legend(loc="lower left")
+        axs[-1].legend(loc="lower left", fontsize=10)
         axs[-1].set_box_aspect(1)
 
     # rescale figure height to remove white space
@@ -168,7 +168,7 @@ def plot_df(df, data_type=""):
         axs.append(fig.add_subplot(gs[idx]))
         pd_df.plot(ax=axs[-1])
         axs[-1].set(xlabel="Score Type", ylabel="Score Value")
-        axs[-1].legend(loc="lower left")
+        axs[-1].legend(loc="lower left", fontsize=10)
         axs[-1].set_box_aspect(1)
 
     # rescale figure height to remove white space
@@ -218,7 +218,7 @@ def plot_gridsearch_results(classifier, class_type=""):
         )
         axs[-1].set_xlim(df_chunk.index.values[0], df_chunk.index.values[-1])
 
-    axs[0].legend(loc="upper right")
+    axs[0].legend(loc="upper right", fontsize=10)
     axs[-1].set(xlabel="Gridsearch Combination")
 
     # rescale figure height to remove white space
