@@ -53,7 +53,7 @@ if not os.path.isfile(cfile): raise ValueError(f"Config file {cfile} not found."
 config = json.load(open(cfile))
 
 # set random seeds for reproducibility
-rand_state = config["Random_State"]
+rand_state = config["MetaData"]["Random_State"]
 np.random.seed(rand_state)
 
 
@@ -108,7 +108,7 @@ if not args.no_plots:
 
 ## Scale 'Time' and 'Amount' features, and compare distributions before/after scaling
 scaler_opts_ = ["Standard", "Robust"]
-scaler_type = config["Scaler"]
+scaler_type = config["MetaData"]["Scaler"]
 if scaler_type == "Standard":
     from sklearn.preprocessing import StandardScaler
     scaler = StandardScaler()
@@ -162,7 +162,7 @@ features, target = data.iloc[:, data.columns != target_name], data[target_name]
 
 # split into training and testing sets
 features_train, features_test, target_train, target_test = train_test_split(features, target,
-    train_size=config["Training_Frac"], test_size=1-config["Training_Frac"], random_state=rand_state
+    train_size=config["MetaData"]["Training_Frac"], test_size=1-config["MetaData"]["Training_Frac"], random_state=rand_state
 )
 
 if args.debug:
