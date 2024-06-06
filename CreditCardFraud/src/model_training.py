@@ -55,8 +55,6 @@ if optimizer_algos != ["Default"]:
     opt_dir = os.path.join(resdir, "ParameterOptimization")
     if not os.path.isdir(opt_dir): os.makedirs(opt_dir)
 
-    from sklearn_genetic.plots import plot_fitness_evolution, plot_search_space
-
 
 # fit and evaluate models on training data
 def fit_train_models(X, y, classifiers=dict()):
