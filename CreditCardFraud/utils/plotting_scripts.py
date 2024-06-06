@@ -183,7 +183,7 @@ def plot_df(df, fig_title="Results"):
 
     return fig
 
-def plot_gridsearch_results(classifier, class_type=""):
+def plot_optimization_results(classifier, class_type=""):
     # determine number of rows and columns to be produced based on the size of the df
     max_bins_per_axis = 30
     results = ["mean_train_score", "std_train_score", "mean_test_score", "std_test_score"]
@@ -193,45 +193,95 @@ def plot_gridsearch_results(classifier, class_type=""):
     nrows = int(np.ceil(nclass/max_bins_per_axis))
     bins_per_axis = int(np.ceil(nclass/nrows))
 
+    max_nrows = 5
+    if nrows > max_nrows:
+        nfigs = int(np.ceil(nrows/max_nrows))
+            #split DataFrame into chunks based on number of figs
+        df_fig_list = [df.iloc[i:i+max_nrows*bins_per_axis, :] for i in range(0, len(df), max_nrows*bins_per_axis)]
+        figs = []
+        for fig_idx in range(len(df_fig_list)): 
+                # split dataframe into more chunks for each figure
+            df_list = [df_fig_list[fig_idx].iloc[i:i+bins_per_axis, :] for i in range(0, len(df_fig_list[fig_idx]), bins_per_axis)]
+            fig = plt.figure(constrained_layout=True, figsize=(15.0, 10.0))
+            gs = gridspec.GridSpec(ncols=ncols, nrows=len(df_list), figure=fig)
+            axs = []
 
-    fig = plt.figure(constrained_layout=True, figsize=(15.0, 10.0))
-    gs = gridspec.GridSpec(ncols=ncols, nrows=nrows, figure=fig)
-    axs = []
-        #split DataFrame into chunks
-    df_list = [df.iloc[i:i+bins_per_axis, :] for i in range(0, len(df), bins_per_axis)]
-    for idx, df_chunk in enumerate(df_list):
-        axs.append(fig.add_subplot(gs[idx]))
-        axs[-1].set(ylabel=f"{classifier.scoring} Score")
+            for idx, df_chunk in enumerate(df_list):
+                axs.append(fig.add_subplot(gs[idx]))
 
-        axs[-1].plot(df_chunk["mean_train_score"], label="Training", color="darkorange", lw=2)
-        axs[-1].fill_between(
-            df_chunk.index.values,
-            df_chunk["mean_train_score"] - df_chunk["std_train_score"],
-            df_chunk["mean_train_score"] + df_chunk["std_train_score"],
-            alpha=0.2, color="darkorange", lw=2
-        )
+                axs[-1].plot(df_chunk["mean_train_score"], label="Training", color="darkorange", lw=2)
+                axs[-1].fill_between(
+                    df_chunk.index.values,
+                    df_chunk["mean_train_score"] - df_chunk["std_train_score"],
+                    df_chunk["mean_train_score"] + df_chunk["std_train_score"],
+                    alpha=0.2, color="darkorange", lw=2
+                )
 
-        axs[-1].plot(df_chunk["mean_test_score"], label="Cross-Validation", color="navy", lw=2)
-        axs[-1].fill_between(
-            df_chunk.index.values,
-            df_chunk["mean_test_score"] - df_chunk["std_test_score"],
-            df_chunk["mean_test_score"] + df_chunk["std_test_score"],
-            alpha=0.2, color="navy", lw=2
-        )
-        axs[-1].set_xlim(df_chunk.index.values[0], df_chunk.index.values[-1])
+                axs[-1].plot(df_chunk["mean_test_score"], label="Cross-Validation", color="navy", lw=2)
+                axs[-1].fill_between(
+                    df_chunk.index.values,
+                    df_chunk["mean_test_score"] - df_chunk["std_test_score"],
+                    df_chunk["mean_test_score"] + df_chunk["std_test_score"],
+                    alpha=0.2, color="navy", lw=2
+                )
+                axs[-1].set_xlim(df_chunk.index.values[0], df_chunk.index.values[-1])
 
-    axs[0].legend(loc="upper right", fontsize=10)
-    axs[-1].set(xlabel="Gridsearch Combination")
+            #set_trace()
+            axs[0].legend(loc="upper right", fontsize=12)
+            axs[0].set_ylabel(f"{classifier.scoring.capitalize()} Score", size=16)
+            axs[-1].set_xlabel("Hyperparameter Combination", size=16)
 
-    # rescale figure height to remove white space
-    if ncols * nrows > 1:
-        ax_max_height, fig_height = max([ax.get_position().ymax for ax in axs]), fig.get_size_inches()[-1]
-        fig.set_figheight(ax_max_height*fig_height)
-        fig.suptitle(f"{class_type} Validation Curves", y=0.9 if nrows == 1 else 1.04)
+            # rescale figure height to remove white space
+            if ncols * nrows > 1:
+                ax_max_height, fig_height = max([ax.get_position().ymax for ax in axs]), fig.get_size_inches()[-1]
+                fig.set_figheight(ax_max_height*fig_height)
+                fig.suptitle(f"{class_type} Validation Curves", y=0.9 if nrows == 1 else 1.04)
+            else:
+                fig.suptitle(f"{class_type} Validation Curves")
+
+            figs.append(fig)
+
+        return figs
+
     else:
-        fig.suptitle(f"{class_type} Validation Curves")
+        fig = plt.figure(constrained_layout=True, figsize=(15.0, 10.0))
+        gs = gridspec.GridSpec(ncols=ncols, nrows=nrows, figure=fig)
+        axs = []
+            #split DataFrame into chunks
+        df_list = [df.iloc[i:i+bins_per_axis, :] for i in range(0, len(df), bins_per_axis)]
+        for idx, df_chunk in enumerate(df_list):
+            axs.append(fig.add_subplot(gs[idx]))
 
-    return fig
+            axs[-1].plot(df_chunk["mean_train_score"], label="Training", color="darkorange", lw=2)
+            axs[-1].fill_between(
+                df_chunk.index.values,
+                df_chunk["mean_train_score"] - df_chunk["std_train_score"],
+                df_chunk["mean_train_score"] + df_chunk["std_train_score"],
+                alpha=0.2, color="darkorange", lw=2
+            )
+
+            axs[-1].plot(df_chunk["mean_test_score"], label="Cross-Validation", color="navy", lw=2)
+            axs[-1].fill_between(
+                df_chunk.index.values,
+                df_chunk["mean_test_score"] - df_chunk["std_test_score"],
+                df_chunk["mean_test_score"] + df_chunk["std_test_score"],
+                alpha=0.2, color="navy", lw=2
+            )
+            axs[-1].set_xlim(df_chunk.index.values[0], df_chunk.index.values[-1])
+
+        axs[0].legend(loc="upper right", fontsize=12)
+        axs[0].set_ylabel(f"{classifier.scoring.capitalize()} Score", size=16)
+        axs[-1].set_xlabel("Hyperparameter Combination", size=16)
+
+        # rescale figure height to remove white space
+        if ncols * nrows > 1:
+            ax_max_height, fig_height = max([ax.get_position().ymax for ax in axs]), fig.get_size_inches()[-1]
+            fig.set_figheight(ax_max_height*fig_height)
+            fig.suptitle(f"{class_type} Validation Curves", y=0.9 if nrows == 1 else 1.04)
+        else:
+            fig.suptitle(f"{class_type} Validation Curves")
+
+        return fig
 
 
 def plot_GAsearch_results(clf, plot_type=""):

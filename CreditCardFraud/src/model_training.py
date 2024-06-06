@@ -53,7 +53,9 @@ if optimizer_algos != ["Default"]:
         ## plotting styles
     import utils.plotting_scripts as plt_scripts
     opt_dir = os.path.join(resdir, "ParameterOptimization")
-    if not os.path.isdir(opt_dir): os.makedirs(opt_dir)
+    for algo in optimizer_algos:
+        if algo == "Default": continue
+        if not os.path.isdir(os.path.join(opt_dir, algo)): os.makedirs(os.path.join(opt_dir, algo))
 
 
 # fit and evaluate models on training data
@@ -121,6 +123,7 @@ for pipe_name, pipeline in pipelines_dict.items():
     #set_trace()
     tmp_classifiers_dict = {}
     for optimizer_algo in optimizer_algos:
+        print(f"\n\t{optimizer_algo} is being optimized")
         if optimizer_algo == "Default":
             tmp_classifiers_dict.update({f"{key} {pipe_name} {optimizer_algo}" :  clone(val) for key, val in classifiers_options.items()})
         else:
@@ -131,23 +134,30 @@ for pipe_name, pipeline in pipelines_dict.items():
                     data={"X_train" : X_res.copy(), "y_train" : y_res.copy(), "X_test" : test_features.copy(), "y_test" : test_target.copy()}
                 )
                     # plot score for each hyperparameter combination
-                fig = plt_scripts.plot_gridsearch_results(clf, class_type=f"{key} {pipe_name} {optimizer_algo}")
-                fname = os.path.join(opt_dir, f"{key}_{pipe_name.replace(' ', '_')}_{scale}Scaler_ValidationCurves_ModelOptimized{optimizer_algo}")
-                fig.savefig(fname)
-                print(f"{fname} written")
-                fig.clear()
+                fig = plt_scripts.plot_optimization_results(clf, class_type=f"{key} {pipe_name} {optimizer_algo}")
+                if isinstance(fig, list):
+                    for idx in range(len(fig)):
+                        fname = os.path.join(opt_dir, optimizer_algo, f"{key}_{pipe_name.replace(' ', '_')}_{scale}Scaler_ValidationCurves_{optimizer_algo}_{idx}")
+                        fig[idx].savefig(fname)
+                        print(f"{fname} written")
+                        fig[idx].clear()
+                else:
+                    fname = os.path.join(opt_dir, optimizer_algo, f"{key}_{pipe_name.replace(' ', '_')}_{scale}Scaler_ValidationCurves_{optimizer_algo}")
+                    fig.savefig(fname)
+                    print(f"{fname} written")
+                    fig.clear()
 
                 if optimizer_algo == "GASearchCV":
                         # plot fitness evolution
                     fig = plt_scripts.plot_GAsearch_results(clf, plot_type="FitnessEvolution")
-                    fname = os.path.join(opt_dir, f"{key}_{pipe_name.replace(' ', '_')}_{scale}Scaler_FitnessEvolution_ModelOptimized{optimizer_algo}")
+                    fname = os.path.join(opt_dir, optimizer_algo, f"{key}_{pipe_name.replace(' ', '_')}_{scale}Scaler_FitnessEvolution_{optimizer_algo}")
                     fig.savefig(fname)
                     print(f"{fname} written")
                     fig.clear()
 
                         # plot parameter search space
                     fig = plt_scripts.plot_GAsearch_results(clf, plot_type="SearchSpace")
-                    fname = os.path.join(opt_dir, f"{key}_{pipe_name.replace(' ', '_')}_{scale}Scaler_SearchSpace_ModelOptimized{optimizer_algo}")
+                    fname = os.path.join(opt_dir, optimizer_algo, f"{key}_{pipe_name.replace(' ', '_')}_{scale}Scaler_SearchSpace_{optimizer_algo}")
                     fig.savefig(fname)
                     print(f"{fname} written")
                     fig.clear()
