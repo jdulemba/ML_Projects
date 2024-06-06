@@ -10,7 +10,7 @@ import matplotlib.gridspec as gridspec
 import numpy as np
 import pandas as pd
 
-def plot_confusion_matrix(df, data_type=""):
+def plot_confusion_matrix(df, fig_title="Confusion Matrix"):
     import seaborn as sns
 
     class_names = { 0 : "Not Fraud", 1 : "Fraud"}
@@ -48,14 +48,14 @@ def plot_confusion_matrix(df, data_type=""):
             title_loc = 0.9
         else:
             title_loc = 1.04
-        fig.suptitle(f"Confusion Matrix for {data_type} Data", y=title_loc)
+        fig.suptitle(fig_title, y=title_loc)
     else:
-        fig.suptitle(f"Confusion Matrix for {data_type} Data")
+        fig.suptitle(fig_title)
 
     return fig
 
 
-def plot_roc(df, fpr_thresh=None):
+def plot_roc(df, fig_title="ROC Curve", fpr_thresh=None):
     from sklearn.metrics import auc
     def partial_auc(fpr, tpr, max_fpr):
         "Taken from here https://github.com/scikit-learn/scikit-learn/blob/f3f51f9b611bf873bd5836748647221480071a87/sklearn/metrics/_ranking.py#L350-L356"
@@ -70,7 +70,7 @@ def plot_roc(df, fpr_thresh=None):
 
     max_labels_per_axis = 6
     nclassifiers = len(df)
-    ncols = int(np.ceil(nclassifiers/max_labels_per_axis)) if nclassifiers < 16 else int(np.ceil(nclassifiers/4))
+    ncols = int(np.ceil(nclassifiers/max_labels_per_axis))
     nrows = 1
     labels_per_axis = int(np.ceil(nclassifiers/ncols))
     if ncols >= 4:
@@ -93,7 +93,7 @@ def plot_roc(df, fpr_thresh=None):
 
             axs[-1].plot(fpr, tpr,lw=2, label=class_name+ " (AUC=%0.3f)" % roc_auc if fpr_thresh is None else class_name+ " (AUCx100=%0.3f)" % (roc_auc*100))
 
-        axs[-1].plot([0, 1 if fpr_thresh is None else fpr_thresh], [0, 1], color="k", lw=2, linestyle="--")
+        if fpr_thresh is None: axs[-1].plot([0, 1], [0, 1], color="k", lw=2, linestyle="--")
         axs[-1].set_xlim(0.0, 1.0 if fpr_thresh is None else fpr_thresh)
         axs[-1].set_ylim(0.0, 1.05)
         axs[-1].set(xlabel="False Positive Rate", ylabel="True Positive Rate")
@@ -104,17 +104,17 @@ def plot_roc(df, fpr_thresh=None):
     if ncols * nrows > 1:
         ax_max_height, fig_height = max([ax.get_position().ymax for ax in axs]), fig.get_size_inches()[-1]
         fig.set_figheight(ax_max_height*fig_height)
-        fig.suptitle("ROC Curve", y=0.9 if nrows == 1 else 1.04)
+        fig.suptitle(fig_title, y=0.9 if nrows == 1 else 1.04)
     else:
-        fig.suptitle("ROC Curve")
+        fig.suptitle(fig_title)
 
     return fig
 
 
-def plot_precision_recall(df):
+def plot_precision_recall(df, fig_title="Precision-Recall Curve"):
     max_labels_per_axis = 6
     nclassifiers = len(df)
-    ncols = int(np.ceil(nclassifiers/max_labels_per_axis)) if nclassifiers < 16 else int(np.ceil(nclassifiers/4))
+    ncols = int(np.ceil(nclassifiers/max_labels_per_axis))
     nrows = 1
     labels_per_axis = int(np.ceil(nclassifiers/ncols))
     if ncols >= 4:
@@ -142,19 +142,19 @@ def plot_precision_recall(df):
     if ncols * nrows > 1:
         ax_max_height, fig_height = max([ax.get_position().ymax for ax in axs]), fig.get_size_inches()[-1]
         fig.set_figheight(ax_max_height*fig_height)
-        fig.suptitle("Precision-Recall Curve", y=0.9 if nrows == 1 else 1.04)
+        fig.suptitle(fig_title, y=0.9 if nrows == 1 else 1.04)
     else:
-        fig.suptitle("Precision-Recall Curve")
+        fig.suptitle(fig_title)
 
     return fig
 
 
 
-def plot_df(df, data_type=""):
+def plot_df(df, fig_title="Results"):
     # determine number of rows and columns to be produced based on the size of the df
     max_labels_per_axis = 6
     nclass = df.shape[-1]
-    ncols = int(np.ceil(nclass/max_labels_per_axis)) if nclass < 16 else int(np.ceil(nclass/4))
+    ncols = int(np.ceil(nclass/max_labels_per_axis))
     nrows = 1
     labels_per_axis = int(np.ceil(nclass/ncols))
     if ncols >= 4:
@@ -177,9 +177,9 @@ def plot_df(df, data_type=""):
     if ncols * nrows > 1:
         ax_max_height, fig_height = max([ax.get_position().ymax for ax in axs]), fig.get_size_inches()[-1]
         fig.set_figheight(ax_max_height*fig_height)
-        fig.suptitle(f"{data_type} Results", y=0.9 if nrows == 1 else 1.04)
+        fig.suptitle(fig_title, y=0.9 if nrows == 1 else 1.04)
     else:
-        fig.suptitle(f"{data_type} Results")
+        fig.suptitle(fig_title)
 
     return fig
 
@@ -230,5 +230,86 @@ def plot_gridsearch_results(classifier, class_type=""):
         fig.suptitle(f"{class_type} Validation Curves", y=0.9 if nrows == 1 else 1.04)
     else:
         fig.suptitle(f"{class_type} Validation Curves")
+
+    return fig
+
+
+def plot_GAsearch_results(clf, plot_type=""):
+    supported_plot_types = ["FitnessEvolution", "SearchSpace"]
+    assert plot_type in supported_plot_types, f"{plot_type} is not a valid type of plot to make, must be {supported_plot_types}."
+
+    if plot_type == "FitnessEvolution":
+        #import seaborn as sns
+        metric = "fitness"
+        fitness_vals, fitness_std = np.array(clf.history[metric]), np.array(clf.history[f"{metric}_std"])
+
+        fig = plt.figure(constrained_layout=True)
+        gs = gridspec.GridSpec(ncols=1, nrows=1, figure=fig)
+        ax = fig.add_subplot(gs[0])
+        ax.plot(range(len(clf)), fitness_vals, color="b")
+        ax.fill_between(
+            range(len(clf)),
+            fitness_vals - fitness_std,
+            fitness_vals + fitness_std,
+            alpha=0.2, color="b", lw=2
+        )
+        ax.set_title(f"{metric.capitalize()} Average Evolution Over Generations", size=20)
+        ax.set_xlabel("Generations", size=16)
+        ax.set_ylabel(f"{clf.scoring.upper()} {clf.refit_metric.capitalize()}", size=16)
+
+
+    if plot_type == "SearchSpace":
+        import seaborn as sns
+        sns.set_style(style_dict)
+
+        from sklearn_genetic.utils import logbook_to_pandas
+        from sklearn_genetic.genetic_search import GAFeatureSelectionCV
+        height, s = 2, 25
+        features = None
+        """
+        Parameters
+        ----------
+        clf: clf object
+            A fitted clf from :class:`~sklearn_genetic.GASearchCV`
+        height: float, default=2
+            Height of each facet
+        s: float, default=5
+            Size of the markers in scatter plot
+        features: list, default=None
+            Subset of features to plot, if ``None`` it plots all the features by default
+
+        Returns
+        -------
+        Pair plot of the used hyperparameters during the search
+
+        """
+
+        if isinstance(clf, GAFeatureSelectionCV):
+            raise TypeError(
+                "Estimator must be a GASearchCV instance, not a GAFeatureSelectionCV instance"
+            )
+
+
+        df = logbook_to_pandas(clf.logbook)
+        if features:
+            stats = df[features].astype(np.float64)
+        else:
+            variables = [*clf.space.parameters, clf.refit_metric]
+            stats = df[variables].select_dtypes(["number", "bool"]).astype(np.float64)
+
+        grid = sns.PairGrid(stats, diag_sharey=False, height=height)
+        grid = grid.map_upper(sns.scatterplot, s=s, color="r", alpha=0.2)
+        grid = grid.map_lower(
+            sns.kdeplot,
+            fill=True,
+            cmap=sns.color_palette("ch:s=.25,rot=-.25", as_cmap=True),
+        )
+        grid = grid.map_diag(sns.kdeplot, fill=True, alpha=0.2, color="red")
+
+        [ax.tick_params(axis="both", which="both", left=False, right=False, top=False, bottom=False) for ax in grid.axes.ravel()]
+        fig = grid.figure
+        ax_max_height, fig_height = max([ax.get_position().ymax for ax in grid.axes.ravel()]), fig.get_size_inches()[-1]
+        fig.set_figheight(ax_max_height*fig_height)
+        fig.suptitle("Hyperparameter Search Space", y=1.04, size=20)
 
     return fig
