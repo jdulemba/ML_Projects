@@ -9,7 +9,8 @@
         "LogisticRegression" : {},
         "SGDClassifier" : {"loss" : "log_loss"},
         "DecisionTree" : {},
-        "RandomForest" : {}
+        "RandomForest" : {},
+        "XGB" : {}
     },
     "Sampling Methods" : {
         "No Sampling" : {},
