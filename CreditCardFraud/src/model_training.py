@@ -55,6 +55,7 @@ if optimizer_algos != ["Default"]:
     opt_dir = os.path.join(resdir, "ParameterOptimization")
     if not os.path.isdir(opt_dir): os.makedirs(opt_dir)
 
+    from sklearn_genetic.plots import plot_fitness_evolution, plot_search_space
 
 
 # fit and evaluate models on training data
@@ -126,7 +127,6 @@ for pipe_name, pipeline in pipelines_dict.items():
             tmp_classifiers_dict.update({f"{key} {pipe_name} {optimizer_algo}" :  clone(val) for key, val in classifiers_options.items()})
         else:
             tmp_classifiers_dict.update({f"{key} {pipe_name} {optimizer_algo}" :  clone(val) for key, val in classifiers_options.items()})
-            #set_trace()
             for key, val in classifiers_options.items():
                 clf = optimize_model.optimize_model(
                     classifier=val, algo=optimizer_algo,
@@ -138,6 +138,22 @@ for pipe_name, pipeline in pipelines_dict.items():
                 fig.savefig(fname)
                 print(f"{fname} written")
                 fig.clear()
+
+                if optimizer_algo == "GASearchCV":
+                        # plot fitness evolution
+                    fig = plt_scripts.plot_GAsearch_results(clf, plot_type="FitnessEvolution")
+                    fname = os.path.join(opt_dir, f"{key}_{pipe_name.replace(' ', '_')}_{scale}Scaler_FitnessEvolution_ModelOptimized{optimizer_algo}")
+                    fig.savefig(fname)
+                    print(f"{fname} written")
+                    fig.clear()
+
+                        # plot parameter search space
+                    fig = plt_scripts.plot_GAsearch_results(clf, plot_type="SearchSpace")
+                    fname = os.path.join(opt_dir, f"{key}_{pipe_name.replace(' ', '_')}_{scale}Scaler_SearchSpace_ModelOptimized{optimizer_algo}")
+                    fig.savefig(fname)
+                    print(f"{fname} written")
+                    fig.clear()
+                    #set_trace()
 
                 tmp_classifiers_dict[f"{key} {pipe_name} {optimizer_algo}"] = clf.best_estimator_
 
