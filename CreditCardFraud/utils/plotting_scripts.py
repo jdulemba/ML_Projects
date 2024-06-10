@@ -68,20 +68,33 @@ def plot_roc(df, fig_title="ROC Curve", fpr_thresh=None):
     
         return auc(fpr, tpr)
 
-    max_labels_per_axis = 6
-    nclassifiers = len(df)
-    ncols = int(np.ceil(nclassifiers/max_labels_per_axis))
-    nrows = 1
-    labels_per_axis = int(np.ceil(nclassifiers/ncols))
-    if ncols >= 4:
-        ncols, nrows = 2, 2
+    nclass = len(df)
+    max_labels_per_axis = 7
+    if nclass <= max_labels_per_axis:
+        labels_per_axis = nclass
+    else:
+        if nclass % 4 == 0:
+            labels_per_axis = 4
+        elif nclass % 5 == 0:
+            labels_per_axis = 5
+        elif nclass % 6 == 0:
+            labels_per_axis = 6
+
+    nfigs = int(nclass/labels_per_axis)
+    max_ncols = 2
+    if nfigs < 3:
+        nrows, ncols = 1, nfigs
+    elif nfigs <= 4:
+        nrows, ncols = 2, 2
+    else:
+        nrows, ncols = int(np.ceil(nfigs/max_ncols)), max_ncols
 
     fig = plt.figure(constrained_layout=True)
     gs = gridspec.GridSpec(ncols=ncols, nrows=nrows, figure=fig)
     axs = []
 
         #split DataFrame into chunks
-    df_list = [df.iloc[i:i+labels_per_axis, :] for i in range(0, nclassifiers, labels_per_axis)]
+    df_list = [df.iloc[i:i+labels_per_axis, :] for i in range(0, nclass, labels_per_axis)]
     for idx, df_chunk in enumerate(df_list):
         axs.append(fig.add_subplot(gs[idx]))
         # plot curve for each classifier
@@ -97,7 +110,10 @@ def plot_roc(df, fig_title="ROC Curve", fpr_thresh=None):
         axs[-1].set_xlim(0.0, 1.0 if fpr_thresh is None else fpr_thresh)
         axs[-1].set_ylim(0.0, 1.05)
         axs[-1].set(xlabel="False Positive Rate", ylabel="True Positive Rate")
-        axs[-1].legend(loc="lower right", fontsize=10)
+        if nfigs == 1:
+            axs[-1].xaxis.label.set_size(16)
+            axs[-1].yaxis.label.set_size(16)
+        axs[-1].legend(loc="lower right", fontsize=16 if nfigs == 1 else 10)
         axs[-1].set_box_aspect(1)
 
     # rescale figure height to remove white space
@@ -112,20 +128,33 @@ def plot_roc(df, fig_title="ROC Curve", fpr_thresh=None):
 
 
 def plot_precision_recall(df, fig_title="Precision-Recall Curve"):
-    max_labels_per_axis = 6
-    nclassifiers = len(df)
-    ncols = int(np.ceil(nclassifiers/max_labels_per_axis))
-    nrows = 1
-    labels_per_axis = int(np.ceil(nclassifiers/ncols))
-    if ncols >= 4:
-        ncols, nrows = 2, 2
+    nclass = len(df)
+    max_labels_per_axis = 7
+    if nclass <= max_labels_per_axis:
+        labels_per_axis = nclass
+    else:
+        if nclass % 4 == 0:
+            labels_per_axis = 4
+        elif nclass % 5 == 0:
+            labels_per_axis = 5
+        elif nclass % 6 == 0:
+            labels_per_axis = 6
+
+    nfigs = int(nclass/labels_per_axis)
+    max_ncols = 2
+    if nfigs < 3:
+        nrows, ncols = 1, nfigs
+    elif nfigs <= 4:
+        nrows, ncols = 2, 2
+    else:
+        nrows, ncols = int(np.ceil(nfigs/max_ncols)), max_ncols
 
     fig = plt.figure(constrained_layout=True)
     gs = gridspec.GridSpec(ncols=ncols, nrows=nrows, figure=fig)
     axs = []
 
         #split DataFrame into chunks
-    df_list = [df.iloc[i:i+labels_per_axis, :] for i in range(0, nclassifiers, labels_per_axis)]
+    df_list = [df.iloc[i:i+labels_per_axis, :] for i in range(0, nclass, labels_per_axis)]
     for idx, df_chunk in enumerate(df_list):
         axs.append(fig.add_subplot(gs[idx]))
         for class_name in df_chunk.index:
@@ -135,7 +164,10 @@ def plot_precision_recall(df, fig_title="Precision-Recall Curve"):
         axs[-1].set_xlim(0.0, 1.0)
         axs[-1].set_ylim(0.0, 1.05)
         axs[-1].set(xlabel="Recall", ylabel="Precision")
-        axs[-1].legend(loc="lower left", fontsize=10)
+        if nfigs == 1:
+            axs[-1].xaxis.label.set_size(16)
+            axs[-1].yaxis.label.set_size(16)
+        axs[-1].legend(loc="lower left", fontsize=16 if nfigs == 1 else 10)
         axs[-1].set_box_aspect(1)
 
     # rescale figure height to remove white space
@@ -152,13 +184,26 @@ def plot_precision_recall(df, fig_title="Precision-Recall Curve"):
 
 def plot_df(df, fig_title="Results"):
     # determine number of rows and columns to be produced based on the size of the df
-    max_labels_per_axis = 6
+    max_labels_per_axis = 7
     nclass = df.shape[-1]
-    ncols = int(np.ceil(nclass/max_labels_per_axis))
-    nrows = 1
-    labels_per_axis = int(np.ceil(nclass/ncols))
-    if ncols >= 4:
-        ncols, nrows = 2, 2
+    if nclass <= max_labels_per_axis:
+        labels_per_axis = nclass
+    else:
+        if nclass % 4 == 0:
+            labels_per_axis = 4
+        elif nclass % 5 == 0:
+            labels_per_axis = 5
+        elif nclass % 6 == 0:
+            labels_per_axis = 6
+
+    nfigs = int(nclass/labels_per_axis)
+    max_ncols = 2
+    if nfigs < 3:
+        nrows, ncols = 1, nfigs
+    elif nfigs <= 4:
+        nrows, ncols = 2, 2
+    else:
+        nrows, ncols = int(np.ceil(nfigs/max_ncols)), max_ncols
 
     fig = plt.figure(constrained_layout=True)
     gs = gridspec.GridSpec(ncols=ncols, nrows=nrows, figure=fig)
@@ -170,7 +215,10 @@ def plot_df(df, fig_title="Results"):
         axs.append(fig.add_subplot(gs[idx]))
         pd_df.plot(ax=axs[-1])
         axs[-1].set(xlabel="Score Type", ylabel="Score Value")
-        axs[-1].legend(loc="lower left", fontsize=10)
+        if nfigs == 1:
+            axs[-1].xaxis.label.set_size(16)
+            axs[-1].yaxis.label.set_size(16)
+        axs[-1].legend(loc="lower left", fontsize=16 if nfigs == 1 else 10)
         axs[-1].set_box_aspect(1)
 
     # rescale figure height to remove white space
