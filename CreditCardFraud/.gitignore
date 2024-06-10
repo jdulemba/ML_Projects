@@ -7,5 +7,6 @@ results/*
 results/*/*.hdf5
 results/*/*.pkl
 !results/DefaultConfig/
+!results/XGBoost_HyperParameterOptimization/
 configs/
 !configs/default_config.json
