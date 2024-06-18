@@ -10,3 +10,5 @@ results/*/*.pkl
 !results/XGBoost_HyperParameterOptimization/
 configs/
 !configs/default_config.json
+
+ml*/
