@@ -73,12 +73,12 @@ def plot_roc(df, fig_title="ROC Curve", fpr_thresh=None):
     if nclass <= max_labels_per_axis:
         labels_per_axis = nclass
     else:
-        if nclass % 4 == 0:
-            labels_per_axis = 4
+        if nclass % 6 == 0:
+            labels_per_axis = 6
         elif nclass % 5 == 0:
             labels_per_axis = 5
-        elif nclass % 6 == 0:
-            labels_per_axis = 6
+        elif nclass % 4 == 0:
+            labels_per_axis = 4
 
     nfigs = int(nclass/labels_per_axis)
     max_ncols = 2
@@ -133,12 +133,12 @@ def plot_precision_recall(df, fig_title="Precision-Recall Curve"):
     if nclass <= max_labels_per_axis:
         labels_per_axis = nclass
     else:
-        if nclass % 4 == 0:
-            labels_per_axis = 4
+        if nclass % 6 == 0:
+            labels_per_axis = 6
         elif nclass % 5 == 0:
             labels_per_axis = 5
-        elif nclass % 6 == 0:
-            labels_per_axis = 6
+        elif nclass % 4 == 0:
+            labels_per_axis = 4
 
     nfigs = int(nclass/labels_per_axis)
     max_ncols = 2
@@ -189,12 +189,12 @@ def plot_df(df, fig_title="Results"):
     if nclass <= max_labels_per_axis:
         labels_per_axis = nclass
     else:
-        if nclass % 4 == 0:
-            labels_per_axis = 4
+        if nclass % 6 == 0:
+            labels_per_axis = 6
         elif nclass % 5 == 0:
             labels_per_axis = 5
-        elif nclass % 6 == 0:
-            labels_per_axis = 6
+        elif nclass % 4 == 0:
+            labels_per_axis = 4
 
     nfigs = int(nclass/labels_per_axis)
     max_ncols = 2
