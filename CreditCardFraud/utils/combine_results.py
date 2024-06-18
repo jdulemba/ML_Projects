@@ -24,9 +24,10 @@ for idx in tqdm(range(1, len(input_files))):
         tmp_dict = pickle.load(open(input_files[idx], "rb"))
 
         for key in output_dict.keys():
-            if "Results" not in key: continue # only combine training or testing results, not other info
-            else:
+            try:
                 output_dict[key].update(tmp_dict[key])
+            except:
+                print(f"{key} could not be added to file")
     except:
         raise ValueError("File %s (number %i) could not be added" % (input_files[idx], idx))
 
