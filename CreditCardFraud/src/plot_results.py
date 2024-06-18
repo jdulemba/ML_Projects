@@ -25,7 +25,7 @@ import utils.plotting_scripts as plt_scripts
 ## check if output directory exists and make it if it doesn't
 resdir = os.path.join(os.environ["RESULTS_DIR"], args.jobdir)
 if not os.path.isdir(resdir):
-    raise ValueError(f"{residr} could not be found. Please check if input is correct, otherwise run 'preprocessing.py'.")
+    raise ValueError(f"{residr} could not be found")
 output_dir = os.path.join(resdir, f"{args.res_type}ing")
 
 # open file which has traiing results
@@ -37,9 +37,7 @@ try:
 except:
     raise ValueError(f"Could not open {input_fname}.")
 
-scale = results_dict["MetaData"]["MetaData"]["Scaler"]
-
-results_df = pd.DataFrame(results_dict[f"{args.res_type}_Results"])
+results_df = pd.DataFrame(results_dict[f"{args.res_type}_Results"], columns=sorted(results_dict[f"{args.res_type}_Results"].keys()))
 if args.grouping:
     if len(list(args.grouping.keys())) > 1: raise ValueError("Only grouping by 1 category is allowed.")
     group_cat = list(args.grouping.keys())[0]
@@ -69,70 +67,48 @@ if args.grouping:
 ## check if output directory exists and make it if it doesn't
 if not os.path.isdir(output_dir): os.makedirs(output_dir)
 
-if args.res_type == "Train":
-    # plot metric results
-    fig_title = f"{args.res_type}ing Data ({group_val} Models)" if args.grouping else f"{args.res_type}ing Data"
-    fig = plt_scripts.plot_df(results_df.loc[["Cross_Val", "Precision", "Recall", "F1"], :],
+# plot metric results
+fig = plt_scripts.plot_df(results_df.loc[["Precision", "Recall", "F1"], :],
             fig_title=f"{args.res_type}ing Results ({group_val} Models)" if args.grouping else f"{args.res_type}ing Results")
-    fname = os.path.join(output_dir, f"{args.res_type}ing_Results_Table_{scale}Scaler_{''.join(group_val.split())}Models" if args.grouping else f"{args.res_type}ing_Results_Table_{scale}Scaler")
-    fig.savefig(fname)
-    print(f"{fname} written")
-    fig.clear()
+fname = os.path.join(output_dir, f"{args.res_type}ing_Results_Table_{''.join(group_val.split())}Models" if args.grouping else f"{args.res_type}ing_Results_Table")
+fig.savefig(fname)
+print(f"{fname} written")
+fig.clear()
 
-    # plot confusion matrices
-    fig = plt_scripts.plot_confusion_matrix(df=results_df.loc[["Confusion_Matrix"], :].transpose(),
-            fig_title=f"Confusion Matrix for {args.res_type}ing Data ({group_val} Models)" if args.grouping else f"Confusion Matrix for {args.res_type}ing Data")
-    fname = os.path.join(output_dir, f"{args.res_type}ing_ConfusionMatrix_{scale}Scaler_{''.join(group_val.split())}Models" if args.grouping else f"{args.res_type}ing_ConfusionMatrix_{scale}Scaler")
-    fig.savefig(fname)
-    print(f"{fname} written")
-    fig.clear()
+# plot confusion matrices
+fig = plt_scripts.plot_confusion_matrix(df=results_df.loc[["Confusion_Matrix"], :].transpose(),
+        fig_title=f"Confusion Matrix for {args.res_type}ing Data ({group_val} Models)" if args.grouping else f"Confusion Matrix for {args.res_type}ing Data")
+fname = os.path.join(output_dir, f"{args.res_type}ing_ConfusionMatrix_{''.join(group_val.split())}Models" if args.grouping else f"{args.res_type}ing_ConfusionMatrix")
+fig.savefig(fname)
+print(f"{fname} written")
+fig.clear()
 
+# plot ROC curves for testing dataset
+fig = plt_scripts.plot_roc(df=results_df.loc[[col for col in results_df.index if "ROC" in col], :].transpose(),
+        fig_title=f"ROC Curves ({group_val} Models)" if args.grouping else "ROC Curves")
+fname = os.path.join(output_dir, f"{args.res_type}ing_ROC_AUC_{''.join(group_val.split())}Models" if args.grouping else f"{args.res_type}ing_ROC_AUC")
+fig.savefig(fname)
+print(f"{fname} written")
+fig.clear()
 
+    # make ROC curve using only false positive rates < 0.1%
+fpr_thresh = 0.001
+fig = plt_scripts.plot_roc(df=results_df.loc[[col for col in results_df.index if "ROC" in col], :].transpose(), fpr_thresh=fpr_thresh,
+        fig_title=f"ROC Curves ({group_val} Models)" if args.grouping else "ROC Curves")
+fname = os.path.join(output_dir, f"{args.res_type}ing_ROC_AUC_{str(fpr_thresh).replace('.', 'p')}_{''.join(group_val.split())}Models" if args.grouping\
+        else f"{args.res_type}ing_ROC_AUC_{str(fpr_thresh).replace('.', 'p')}")
+fig.savefig(fname)
+print(f"{fname} written")
+fig.clear()
 
-if args.res_type == "Test":
-    # plot metric results
-    fig = plt_scripts.plot_df(results_df.loc[["Precision", "Recall", "F1"], :],
-                fig_title=f"{args.res_type}ing Results ({group_val} Models)" if args.grouping else f"{args.res_type}ing Results")
-    fname = os.path.join(output_dir, f"{args.res_type}ing_Results_Table_{scale}Scaler_{''.join(group_val.split())}Models" if args.grouping else f"{args.res_type}ing_Results_Table_{scale}Scaler")
-    fig.savefig(fname)
-    print(f"{fname} written")
-    fig.clear()
-
-    # plot confusion matrices
-    fig = plt_scripts.plot_confusion_matrix(df=results_df.loc[["Confusion_Matrix"], :].transpose(),
-            fig_title=f"Confusion Matrix for {args.res_type}ing Data ({group_val} Models)" if args.grouping else f"Confusion Matrix for {args.res_type}ing Data")
-    fname = os.path.join(output_dir, f"{args.res_type}ing_ConfusionMatrix_{scale}Scaler_{''.join(group_val.split())}Models" if args.grouping else f"{args.res_type}ing_ConfusionMatrix_{scale}Scaler")
-    fig.savefig(fname)
-    print(f"{fname} written")
-    fig.clear()
-
-    # plot ROC curves for testing dataset
-    fig = plt_scripts.plot_roc(df=results_df.loc[[col for col in results_df.index if "ROC" in col], :].transpose(),
-            fig_title=f"ROC Curves ({group_val} Models)" if args.grouping else "ROC Curves")
-    fname = os.path.join(output_dir, f"{args.res_type}ing_ROC_AUC_{scale}Scaler_{''.join(group_val.split())}Models" if args.grouping else f"{args.res_type}ing_ROC_AUC_{scale}Scaler")
-    fig.savefig(fname)
-    print(f"{fname} written")
-    fig.clear()
-
-        # make ROC curve using only false positive rates < 0.1%
-    fpr_thresh = 0.001
-    fig = plt_scripts.plot_roc(df=results_df.loc[[col for col in results_df.index if "ROC" in col], :].transpose(), fpr_thresh=fpr_thresh,
-            fig_title=f"ROC Curves ({group_val} Models)" if args.grouping else "ROC Curves")
-    fname = os.path.join(output_dir, f"{args.res_type}ing_ROC_AUC_{scale}Scaler_{str(fpr_thresh).replace('.', 'p')}_{''.join(group_val.split())}Models" if args.grouping\
-            else f"{args.res_type}ing_ROC_AUC_{scale}Scaler_{str(fpr_thresh).replace('.', 'p')}")
-    fig.savefig(fname)
-    print(f"{fname} written")
-    fig.clear()
-
-    # plot precision-recall curves for testing dataset
-    fig = plt_scripts.plot_precision_recall(df=results_df.loc[[col for col in results_df.index if "PRCurve" in col], :].transpose(),
-            fig_title=f"Precision-Recall Curve ({group_val} Models)" if args.grouping else "Precision-Recall Curve")
-    fname = os.path.join(output_dir, f"{args.res_type}ing_PrecisionRecall_AUC_{scale}Scaler_{''.join(group_val.split())}Models" if args.grouping\
-            else f"{args.res_type}ing_PrecisionRecall_AUC_{scale}Scaler")
-    fig.savefig(fname)
-    print(f"{fname} written")
-    fig.clear()
-
+# plot precision-recall curves for testing dataset
+fig = plt_scripts.plot_precision_recall(df=results_df.loc[[col for col in results_df.index if "PRCurve" in col], :].transpose(),
+        fig_title=f"Precision-Recall Curve ({group_val} Models)" if args.grouping else "Precision-Recall Curve")
+fname = os.path.join(output_dir, f"{args.res_type}ing_PrecisionRecall_AUC_{''.join(group_val.split())}Models" if args.grouping\
+        else f"{args.res_type}ing_PrecisionRecall_AUC")
+fig.savefig(fname)
+print(f"{fname} written")
+fig.clear()
 
 toc = time.time()
 print("Total runtime: %.2f" % (toc - tic))
