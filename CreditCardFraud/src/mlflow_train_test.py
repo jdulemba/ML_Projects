@@ -47,7 +47,7 @@ if (args.mode == "Train") or (args.mode == "Both"):
                 raise ValueError(f"{key} not found in default metadata dictionary, cannot determine data type of {val}")
 
 if args.mode == "Test":
-    resdir = os.path.join(os.environ["RESULTS_DIR"], args.jobdir)
+    resdir = os.path.join(os.environ["RESULTS_DIR"], args.jobdir, "indiv_model_output")
     
     input_fname = os.path.join(resdir, f"{'_'.join([args.classifier, (args.sampling).replace(' ',''), args.optimizer])}_TrainedModelInfo.pkl")
     if not os.path.isfile(input_fname): raise ValueError(f"Could not find {input_fname}.")
@@ -56,8 +56,8 @@ if args.mode == "Test":
         trained_results = pickle.load(open(input_fname, "rb"))
     except:
         raise ValueError(f"Could not open {input_fname}.")
-    
-    meta_info = mlflow.get_run(run_id=trained_results["Model_Info"].run_id).data.params
+
+    meta_info = mlflow.get_run(run_id=trained_results["Model_Info"][key].run_id).data.params
 
     pars_to_log = deepcopy(meta_info)
     pars_to_log.update({"Classifier" : args.classifier, "Sampling" : args.sampling, "Optimization" : args.optimizer})
@@ -89,49 +89,47 @@ if (args.mode == "Train") or (args.mode == "Both"):
         X_res, y_res = pipeline.fit_resample(features_train.copy(), target_train.copy())
     
     print(f"\n\n\t\tTraining {key}\n")
-    #    #if optimizer_algo == "Default":
-    #    #    tmp_classifiers_dict.update({f"{key} {sampling_type} {optimizer_algo}" :  clone(val) for key, val in classifiers_options.items()})
-    #    #else:
-    #    #    tmp_classifiers_dict.update({f"{key} {sampling_type} {optimizer_algo}" :  clone(val) for key, val in classifiers_options.items()})
-    #    #    for key, val in classifiers_options.items():
-    #    #        clf = optimize_model.optimize_model(
-    #    #            classifier=val, algo=optimizer_algo,
-    #    #            data={"X_train" : X_res.copy(), "y_train" : y_res.copy(), "X_test" : features_test.copy(), "y_test" : target_test.copy()}
-    #    #        )
-    #
-    #    #        tmp_classifiers_dict[f"{key} {sampling_type} {optimizer_algo}"] = clf.best_estimator_
-    if args.no_results:
-        trained_model_info = an_steps.models_logging("train", clone(classifier), X_res, y_res, pars_to_log, no_results=args.no_results)
-        results_df = pd.DataFrame({key : mlflow.get_run(run_id=trained_model_info.run_id).data.metrics})
-        print(f"\n\n---------- Model Training Completed ----------\n\n{results_df}")
-    else:
-        trained_model_info, results = an_steps.models_logging("train", clone(classifier), X_res, y_res, pars_to_log, no_results=args.no_results)
-    
-        from utils.compile_metrics import metrics2dict
-    
-        metrics_dict = metrics2dict(mlflow.get_run(run_id=trained_model_info.run_id).data.metrics)
-        results.update(metrics_dict)
+    if args.optimizer == "Default":
+        if args.no_results:
+            trained_model_info = an_steps.models_logging("train", clone(classifier), X_res, y_res, pars_to_log, no_results=args.no_results)
+            results_df = pd.DataFrame({key : mlflow.get_run(run_id=trained_model_info.run_id).data.metrics})
+            print(f"\n\n---------- Model Training Completed ----------\n\n{results_df}")
+        else:
+            trained_model_info, results = an_steps.models_logging("train", clone(classifier), X_res, y_res, pars_to_log, no_results=args.no_results)
         
-        results_df = pd.DataFrame({key : results})
-        print(f"\n\n---------- Model Training Completed ----------\n\n{results_df}")
-    
-        outdict = {
-            "Model_Info" : trained_model_info,
-            "Train_Results" : {
-                key : results,
+            from utils.compile_metrics import metrics2dict
+        
+            metrics_dict = metrics2dict(mlflow.get_run(run_id=trained_model_info.run_id).data.metrics)
+            results.update(metrics_dict)
+            
+            results_df = pd.DataFrame({key : results})
+            print(f"\n\n---------- Model Training Completed ----------\n\n{results_df}")
+        
+            outdict = {
+                "Model_Info" : {key : trained_model_info},
+                "Train_Results" : {
+                    key : results,
+                }
             }
-        }
-    
-        # save results as pickle file
-        import pickle
-        ## check if output directory exists and make it if it doesn't
-        resdir = os.path.join(os.environ["RESULTS_DIR"], args.jobdir)
-        if not os.path.isdir(resdir): os.makedirs(resdir)
-        outfname = os.path.join(resdir, f"{'_'.join([args.classifier, (args.sampling).replace(' ',''), args.optimizer])}_TrainedModelInfo.pkl")
-    
-        with open(outfname, "wb") as outfile:
-            pickle.dump(outdict, outfile)
-        print(f"{outfname} written")
+        
+            # save results as pickle file
+            import pickle
+            ## check if output directory exists and make it if it doesn't
+            resdir = os.path.join(os.environ["RESULTS_DIR"], args.jobdir, "indiv_model_output")
+            if not os.path.isdir(resdir): os.makedirs(resdir)
+            outfname = os.path.join(resdir, f"{'_'.join([args.classifier, (args.sampling).replace(' ',''), args.optimizer])}_TrainedModelInfo.pkl")
+        
+            with open(outfname, "wb") as outfile:
+                pickle.dump(outdict, outfile)
+            print(f"{outfname} written")
+
+    else:
+        set_trace()
+        clf = optimize_model.optimize_model(
+            classifier=clone(classifier), algo=args.optimizer,
+            data={"X_train" : X_res.copy(), "y_train" : y_res.copy(), "X_test" : features_test.copy(), "y_test" : target_test.copy()}
+        )
+        #    tmp_classifiers_dict[f"{key} {sampling_type} {optimizer_algo}"] = clf.best_estimator_
 
 
 """
@@ -141,14 +139,14 @@ if (args.mode == "Test") or (args.mode == "Both"):
     print(f"\n\n\t\tTesting {key}\n")
 
     if args.no_results:
-        tested_model_info = an_steps.models_logging("Test", trained_results["Model_Info"] if args.mode == "Test" else trained_model_info,
+        tested_model_info = an_steps.models_logging("Test", trained_results["Model_Info"][key] if args.mode == "Test" else trained_model_info,
             features_test.copy(), target_test.copy(), pars_to_log, no_results=args.no_results
         )
         results_df = pd.DataFrame({key : mlflow.get_run(run_id=tested_model_info.run_id).data.metrics})
         print(f"\n\n---------- Model Testing Completed ----------\n\n{results_df}")
     
     else:
-        tested_model_info, results = an_steps.models_logging("Test", trained_results["Model_Info"] if args.mode == "Test" else trained_model_info,
+        tested_model_info, results = an_steps.models_logging("Test", trained_results["Model_Info"][key] if args.mode == "Test" else trained_model_info,
             features_test.copy(), target_test.copy(), pars_to_log, no_results=args.no_results
         )
     
@@ -161,7 +159,7 @@ if (args.mode == "Test") or (args.mode == "Both"):
         print(f"\n\n---------- Model Testing Completed ----------\n\n{results_df}")
     
         outdict = {
-            "Model_Info" : tested_model_info,
+            "Model_Info" : {key : tested_model_info},
             "Test_Results" : {
                 key : results,
             }
