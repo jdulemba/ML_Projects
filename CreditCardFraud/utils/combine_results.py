@@ -1,40 +1,20 @@
 from pdb import set_trace
-
-
-from argparse import ArgumentParser
-parser = ArgumentParser()
-parser.add_argument("output_fname", type=str, help="Name of output file with file extension.")
-parser.add_argument("input_files", type=str, help="Input files separated by ':'")
-args = parser.parse_args()
-
-input_files = args.input_files.split(":")
-
-outfname = args.output_fname
-if not outfname.endswith(".pkl"): outfname = outfname+".pkl"
-import pandas as pd
-import numpy as np
 import os
-
-# open file which has traiing results
+import fnmatch
 import pickle
 from tqdm import tqdm
 
-def add(obj1, obj2):
-    if obj1 == obj2: return obj1
-    assert isinstance(obj1, type(obj2)), "Objects must be the same type in order to add them together!"
-    if isinstance(obj1, dict):
-        output = {}
-        for key in list(set(list(obj1.keys())+list(obj2.keys()))):
-            if obj1[key] == obj2[key]:
-                output[key] = obj1[key]
-            else:
-                output[key] = add(obj1[key], obj2[key])
-    elif isinstance(obj1, list):
-        output = sorted(set(obj1 + obj2))
-    else:
-            raise ValueError("Only dictionary or list objects can be added with this function")
+from argparse import ArgumentParser
+parser = ArgumentParser()
+parser.add_argument("jobdir", help="The job directory name used as the output directory for this and the subsequent script's output.")
+parser.add_argument("res_type", choices=["Train", "Test"], help="Choose to plot results from model training or testing.")
+args = parser.parse_args()
 
-    return output
+dirname = os.path.join(os.environ["RESULTS_DIR"], args.jobdir)
+if not os.path.isdir(dirname): raise ValueError(f"Directory {dirname} not found")
+
+input_files = [os.path.join(dirname, "indiv_model_output", fname) for fname in fnmatch.filter(os.listdir(os.path.join(dirname, "indiv_model_output")), f"*{args.res_type}*ModelInfo*")]
+outfname = os.path.join(dirname, f"{args.res_type}ingResults.pkl")
 
 if not os.path.isfile(input_files[0]): raise ValueError(f"Could not find {input_files[0]}")
 output_dict = pickle.load(open(input_files[0], "rb"))
@@ -44,9 +24,7 @@ for idx in tqdm(range(1, len(input_files))):
         tmp_dict = pickle.load(open(input_files[idx], "rb"))
 
         for key in output_dict.keys():
-            if (key == "MetaData") and (output_dict[key] != tmp_dict[key]):
-                merged_dicts = add(tmp_dict[key], output_dict[key])
-                output_dict[key].update(merged_dicts)
+            if "Results" not in key: continue # only combine training or testing results, not other info
             else:
                 output_dict[key].update(tmp_dict[key])
     except:
