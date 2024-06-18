@@ -17,7 +17,6 @@ def get_data(meta_info):
     
     # open data
     import os
-    #import pandas as pd
     data = pd.read_csv(os.path.join(os.environ["PROJECT_DIR"], "data", "creditcard.csv"))
     # check if there are any null values
     assert not data.isnull().any().any(), "There are unexpected Null values in the dataset"
@@ -88,7 +87,6 @@ def models_logging(data_type, input_clf, X, y, model_params, no_results=False, o
     # Start an MLflow run
     with mlflow.start_run(nested=optimize):
         # Log the hyperparameters
-        #mlflow.log_params(classifier.get_params())
         mlflow.log_params(model_params)
 
         if data_type.capitalize() == "Train":
