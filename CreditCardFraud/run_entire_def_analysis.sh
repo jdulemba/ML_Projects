@@ -7,3 +7,6 @@ python utils/combine_results.py $1 Test
 
 echo "Plotting all results."
 bash make_all_plots.sh $1
+
+echo "Ranking all of the models."
+python src/rank_models.py $1
