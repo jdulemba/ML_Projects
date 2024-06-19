@@ -56,17 +56,7 @@ def plot_confusion_matrix(df, fig_title="Confusion Matrix"):
 
 
 def plot_roc(df, fig_title="ROC Curve", fpr_thresh=None):
-    from sklearn.metrics import auc
-    def partial_auc(fpr, tpr, max_fpr):
-        "Taken from here https://github.com/scikit-learn/scikit-learn/blob/f3f51f9b611bf873bd5836748647221480071a87/sklearn/metrics/_ranking.py#L350-L356"
-        # Add a single point at max_fpr by linear interpolation
-        stop = np.searchsorted(fpr, max_fpr, "right")
-        x_interp = [fpr[stop - 1], fpr[stop]]
-        y_interp = [tpr[stop - 1], tpr[stop]]
-        tpr = np.append(tpr[:stop], np.interp(max_fpr, x_interp, y_interp))
-        fpr = np.append(fpr[:stop], max_fpr)
-    
-        return auc(fpr, tpr)
+    from utils.compile_metrics import get_roc_auc
 
     nclass = len(df)
     max_labels_per_axis = 7
@@ -100,9 +90,7 @@ def plot_roc(df, fig_title="ROC Curve", fpr_thresh=None):
         # plot curve for each classifier
         for class_name in df_chunk.index:
             fpr, tpr, thresh = df_chunk.loc[class_name, ["ROC_FPR", "ROC_TPR", "ROC_Thresh"]]
-            roc_auc = auc(fpr, tpr)
-            if fpr_thresh is not None:
-                roc_auc = partial_auc(fpr, tpr, max_fpr=fpr_thresh)
+            roc_auc = get_roc_auc(fpr, tpr, fpr_thresh=fpr_thresh)
 
             axs[-1].plot(fpr, tpr,lw=2, label=class_name+ " (AUC=%0.3f)" % roc_auc if fpr_thresh is None else class_name+ " (AUCx100=%0.3f)" % (roc_auc*100))
 
