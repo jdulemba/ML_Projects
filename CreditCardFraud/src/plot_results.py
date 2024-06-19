@@ -67,9 +67,11 @@ if args.grouping:
 ## check if output directory exists and make it if it doesn't
 if not os.path.isdir(output_dir): os.makedirs(output_dir)
 
+results_cols = ["Cross_Val", "Precision", "Recall", "F1"] if args.res_type == "Train" else ["Precision", "Recall", "F1"]
+print(results_df.loc[results_cols, :].transpose())
+
 # plot metric results
-fig = plt_scripts.plot_df(results_df.loc[["Precision", "Recall", "F1"], :],
-            fig_title=f"{args.res_type}ing Results ({group_val} Models)" if args.grouping else f"{args.res_type}ing Results")
+fig = plt_scripts.plot_df(results_df.loc[results_cols, :], fig_title=f"{args.res_type}ing Results ({group_val} Models)" if args.grouping else f"{args.res_type}ing Results")
 fname = os.path.join(output_dir, f"{args.res_type}ing_Results_Table_{''.join(group_val.split())}Models" if args.grouping else f"{args.res_type}ing_Results_Table")
 fig.savefig(fname)
 print(f"{fname} written")
