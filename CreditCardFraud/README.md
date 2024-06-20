@@ -74,7 +74,7 @@ This project utilizes the “Credit Card Fraud Detection” [dataset](https://ww
 
 8. Run steps 4-7 in one command (optional):
     - Train and test all of the models using default hyperparameters, plot the results, and rank the models with the command `bash run_entire_def_analysis.sh jobdir`, which uses the default analysis parameters and model hyperparameters.
-    - This command takes approximately 30 minutes??
+    - This command takes approximately 30 minutes to run.
 
 
 ## Discussion
@@ -105,7 +105,22 @@ XGBoost Over-Sampling                   0.99993   1.0       1.0       1.0
 XGBoost Under-Sampling                  0.95098   1.0       1.0       1.0
 ```
 
-As can be seen in the table and the training **Confusion Matrices**, the DecisionTree, RandomForest, and XGBoost classifiers are able to correctly identify and classify the fraudulent and normal transactions in the traiing set, regardless of resampling method. For the other two models, the **Precision**, **Recall**, and **F1-score** values all increase substantially when any type of resampling occurs. However, the **cross-validation** scores using the under-sampling method decrease for all types of classifiers, hinting that the limited statistics resulting from this method might not be able to generalize to the testing dataset.
+The table above shows the cross-validation, **Precision**, **Recall** and **F1** values resulting from model training, allowing for several conclusions to be drawn.
+
+1. DecisionTree, RandomForest, and XGBoost Classifiers:
+    - Achieved perfect classification metrics (**Precision**, **Recall**, **F1**) for all of the resampling methods, demonstrating their effectiveness for this task.
+    - These classifiers also maintained cross-validation scores around 0.999 or higher for most resampling methods, indicating robust model performance during training.
+
+2. LogisticRegression and SGDClassifier Classifiers:
+    - Showed strong performance with resampling methods, emphasizing the importance of resampling in managing imbalanced datasets for these classifiers.
+    - Lower performance without sampling, particularly in **Recall** and **F1** metrics, suggests these models benefit significantly from resampling.
+
+3. Under-Sampling:
+    - Cross-validation scores with Under-Sampling were significantly lower, indicating potential overfitting or less stability during training compared to other resampling methods.
+    - This may hint that the limited statistics resulting from this method might not be able to generalize to the testing dataset.
+
+4. Consistent High Performance:
+    - XGBoost consistently performed exceptionally well across all resampling methods, making it a reliable choice for this classification task.
 
 ### Model Testing Results
 ```
