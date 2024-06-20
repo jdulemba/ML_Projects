@@ -6,8 +6,10 @@
 results/*
 results/*/*.hdf5
 results/*/*.pkl
+results/*/indiv_model_output/
 !results/DefaultConfig/
 !results/XGBoost_HyperParameterOptimization/
+!results/MLflowDefaultSetup/
 configs/
 !configs/default_config.json
 
