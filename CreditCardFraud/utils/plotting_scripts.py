@@ -229,6 +229,9 @@ def plot_optimization_results(classifier, class_type=""):
     nrows = int(np.ceil(nclass/max_bins_per_axis))
     bins_per_axis = int(np.ceil(nclass/nrows))
 
+        # find index of combination of best paramaters
+    best_par_idx = [idx for idx, val in enumerate(classifier.cv_results_["params"]) if val == classifier.best_params_][0]
+
     max_nrows = 5
     if nrows > max_nrows:
         nfigs = int(np.ceil(nrows/max_nrows))
@@ -245,24 +248,27 @@ def plot_optimization_results(classifier, class_type=""):
             for idx, df_chunk in enumerate(df_list):
                 axs.append(fig.add_subplot(gs[idx]))
 
-                axs[-1].plot(df_chunk["mean_train_score"], label="Training", color="darkorange", lw=2)
+                axs[-1].plot(df_chunk["mean_train_score"], label="Training", color="r", lw=2)
                 axs[-1].fill_between(
                     df_chunk.index.values,
                     df_chunk["mean_train_score"] - df_chunk["std_train_score"],
                     df_chunk["mean_train_score"] + df_chunk["std_train_score"],
-                    alpha=0.2, color="darkorange", lw=2
+                    alpha=0.2, color="r", lw=2
                 )
 
-                axs[-1].plot(df_chunk["mean_test_score"], label="Cross-Validation", color="navy", lw=2)
+                axs[-1].plot(df_chunk["mean_test_score"], label="Cross-Validation", color="b", lw=2)
                 axs[-1].fill_between(
                     df_chunk.index.values,
                     df_chunk["mean_test_score"] - df_chunk["std_test_score"],
                     df_chunk["mean_test_score"] + df_chunk["std_test_score"],
-                    alpha=0.2, color="navy", lw=2
+                    alpha=0.2, color="b", lw=2
                 )
-                axs[-1].set_xlim(df_chunk.index.values[0], df_chunk.index.values[-1])
+                axs[-1].set_xlim(df_chunk.index.values[0] - 0.1, df_chunk.index.values[-1] + 0.1)
 
-            #set_trace()
+                    # plot best parameter combination
+                if best_par_idx in df_chunk.index.values:
+                    axs[-1].axvline(best_par_idx, color="k", linestyle="--", label="Best Combination")
+
             axs[0].legend(loc="upper right", fontsize=12)
             axs[0].set_ylabel(f"{classifier.scoring.capitalize()} Score", size=16)
             axs[-1].set_xlabel("Hyperparameter Combination", size=16)
@@ -288,22 +294,26 @@ def plot_optimization_results(classifier, class_type=""):
         for idx, df_chunk in enumerate(df_list):
             axs.append(fig.add_subplot(gs[idx]))
 
-            axs[-1].plot(df_chunk["mean_train_score"], label="Training", color="darkorange", lw=2)
+            axs[-1].plot(df_chunk["mean_train_score"], label="Training", color="r", lw=2)
             axs[-1].fill_between(
                 df_chunk.index.values,
                 df_chunk["mean_train_score"] - df_chunk["std_train_score"],
                 df_chunk["mean_train_score"] + df_chunk["std_train_score"],
-                alpha=0.2, color="darkorange", lw=2
+                alpha=0.2, color="r", lw=2
             )
 
-            axs[-1].plot(df_chunk["mean_test_score"], label="Cross-Validation", color="navy", lw=2)
+            axs[-1].plot(df_chunk["mean_test_score"], label="Cross-Validation", color="b", lw=2)
             axs[-1].fill_between(
                 df_chunk.index.values,
                 df_chunk["mean_test_score"] - df_chunk["std_test_score"],
                 df_chunk["mean_test_score"] + df_chunk["std_test_score"],
-                alpha=0.2, color="navy", lw=2
+                alpha=0.2, color="b", lw=2
             )
-            axs[-1].set_xlim(df_chunk.index.values[0], df_chunk.index.values[-1])
+            axs[-1].set_xlim(df_chunk.index.values[0] - 0.1, df_chunk.index.values[-1] + 0.1)
+
+                # plot best parameter combination
+            if best_par_idx in df_chunk.index.values:
+                axs[-1].axvline(best_par_idx, color="k", linestyle="--", label="Best Combination")
 
         axs[0].legend(loc="upper right", fontsize=12)
         axs[0].set_ylabel(f"{classifier.scoring.capitalize()} Score", size=16)
