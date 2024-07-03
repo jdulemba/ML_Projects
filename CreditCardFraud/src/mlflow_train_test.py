@@ -25,7 +25,6 @@ args = parser.parse_args()
 import os
 from copy import deepcopy
 import pandas as pd
-import numpy as np
 import utils.analysis_steps as an_steps
 from sklearn.base import clone # needed for 'initializing' models for each resampling method
 import mlflow
@@ -72,6 +71,10 @@ if (args.mode == "Train") or (args.mode == "Both"):
     # get optimizer info
     if args.optimizer != "Default":
         import utils.model_optimization as optimize_model
+            ## plotting styles
+        import utils.plotting_scripts as plt_scripts
+        opt_dir = os.path.join(os.environ["RESULTS_DIR"], args.jobdir, "Training", "ParameterOptimization")
+        if not os.path.isdir(os.path.join(opt_dir, args.optimizer)): os.makedirs(os.path.join(opt_dir, args.optimizer))
 
     # define and make pipeline for resampling methods
     pipeline = model_opts.create_pipeline(args.sampling, **model_opts.get_resampling_method_pars(args.sampling, rand_state=meta_info["random_state"]))
@@ -124,12 +127,74 @@ if (args.mode == "Train") or (args.mode == "Both"):
             print(f"{outfname} written")
 
     else:
-        set_trace()
         clf = optimize_model.optimize_model(
             classifier=clone(classifier), algo=args.optimizer,
             data={"X_train" : X_res.copy(), "y_train" : y_res.copy(), "X_test" : features_test.copy(), "y_test" : target_test.copy()}
         )
-        #    tmp_classifiers_dict[f"{key} {sampling_type} {optimizer_algo}"] = clf.best_estimator_
+
+            # plot score for each hyperparameter combination
+        fig = plt_scripts.plot_optimization_results(clf, class_type=key)
+        if isinstance(fig, list):
+            for idx in range(len(fig)):
+                fname = os.path.join(opt_dir, args.optimizer, f"{key.replace(' ', '_')}_ValidationCurves_{idx}")
+                fig[idx].savefig(fname)
+                print(f"{fname} written")
+                fig[idx].clear()
+        else:
+            fname = os.path.join(opt_dir, args.optimizer, f"{key.replace(' ', '_')}_ValidationCurves")
+            fig.savefig(fname)
+            print(f"{fname} written")
+            fig.clear()
+
+        if args.optimizer == "GASearchCV":
+                # plot fitness evolution
+            fig = plt_scripts.plot_GAsearch_results(clf, plot_type="FitnessEvolution")
+            fname = os.path.join(opt_dir, args.optimizer, f"{key.replace(' ', '_')}_FitnessEvolution")
+            fig.savefig(fname)
+            print(f"{fname} written")
+            fig.clear()
+
+                # plot parameter search space
+            fig = plt_scripts.plot_GAsearch_results(clf, plot_type="SearchSpace")
+            fname = os.path.join(opt_dir, args.optimizer, f"{key.replace(' ', '_')}_SearchSpace")
+            fig.savefig(fname)
+            print(f"{fname} written")
+            fig.clear()
+
+        pars_to_log.update(clf.best_params_)
+        if args.no_results:
+            trained_model_info = an_steps.models_logging("train", clf.best_estimator_, X_res, y_res, pars_to_log, no_results=args.no_results, optimize=True)
+            results_df = pd.DataFrame({key : mlflow.get_run(run_id=trained_model_info.run_id).data.metrics})
+            print(f"\n\n---------- Model Training Completed ----------\n\n{results_df}")
+        else:
+            trained_model_info, results = an_steps.models_logging("train", clone(clf.best_estimator_), X_res, y_res, pars_to_log, no_results=args.no_results, optimize=True)
+
+            from utils.compile_metrics import metrics2dict
+
+            metrics_dict = metrics2dict(mlflow.get_run(run_id=trained_model_info.run_id).data.metrics)
+            results.update(metrics_dict)
+
+            results_df = pd.DataFrame({key : results})
+            print(f"\n\n---------- Model Training Completed ----------\n\n{results_df}")
+
+            outdict = {
+                "Model_Info" : {key : trained_model_info},
+                "Train_Results" : {
+                    key : results,
+                }
+            }
+
+            # save results as pickle file
+            import pickle
+            ## check if output directory exists and make it if it doesn't
+            resdir = os.path.join(os.environ["RESULTS_DIR"], args.jobdir, "indiv_model_output")
+            if not os.path.isdir(resdir): os.makedirs(resdir)
+            outfname = os.path.join(resdir, f"{'_'.join([args.classifier, (args.sampling).replace(' ',''), args.optimizer])}_TrainedModelInfo.pkl")
+
+            with open(outfname, "wb") as outfile:
+                pickle.dump(outdict, outfile)
+            print(f"{outfname} written")
+
 
 
 """
@@ -140,14 +205,14 @@ if (args.mode == "Test") or (args.mode == "Both"):
 
     if args.no_results:
         tested_model_info = an_steps.models_logging("Test", trained_results["Model_Info"][key] if args.mode == "Test" else trained_model_info,
-            features_test.copy(), target_test.copy(), pars_to_log, no_results=args.no_results
+            features_test.copy(), target_test.copy(), pars_to_log, no_results=args.no_results, optimize=args.optimizer != "Default"
         )
         results_df = pd.DataFrame({key : mlflow.get_run(run_id=tested_model_info.run_id).data.metrics})
         print(f"\n\n---------- Model Testing Completed ----------\n\n{results_df}")
     
     else:
         tested_model_info, results = an_steps.models_logging("Test", trained_results["Model_Info"][key] if args.mode == "Test" else trained_model_info,
-            features_test.copy(), target_test.copy(), pars_to_log, no_results=args.no_results
+            features_test.copy(), target_test.copy(), pars_to_log, no_results=args.no_results, optimize=args.optimizer != "Default"
         )
     
         from utils.compile_metrics import metrics2dict
