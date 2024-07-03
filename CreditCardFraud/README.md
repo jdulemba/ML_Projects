@@ -82,27 +82,27 @@ Results running the command `bash run_entire_def_analysis.sh MLflowDefaultSetup`
 
 ### Model Training Results
 ```
-                                       Cross_Val Precision    Recall        F1
-DecisionTree No Sampling                0.999087  1.0       1.0       1.0
-DecisionTree Over+Under-Sampling        0.998593  1.0       1.0       1.0
-DecisionTree Over-Sampling              0.999756  1.0       1.0       1.0
-DecisionTree Under-Sampling             0.887964  1.0       1.0       1.0
-LogisticRegression No Sampling          0.999197  0.896154  0.652661  0.755267
-LogisticRegression Over+Under-Sampling  0.964824  0.979003  0.913769  0.945262
-LogisticRegression Over-Sampling        0.955002  0.980162  0.930028  0.954437
-LogisticRegression Under-Sampling       0.935586  0.979351  0.929972  0.954023
-RandomForest No Sampling                0.999508  1.0       1.0       1.0
-RandomForest Over+Under-Sampling        0.999832  1.0       1.0       1.0
-RandomForest Over-Sampling              0.999952  1.0       1.0       1.0
-RandomForest Under-Sampling             0.938373  1.0       1.0       1.0
-SGDClassifier No Sampling               0.999092  0.878049  0.605042  0.716418
-SGDClassifier Over+Under-Sampling       0.959045  0.984281  0.893618  0.936761
-SGDClassifier Over-Sampling             0.95414   0.978972  0.932736  0.955295
-SGDClassifier Under-Sampling            0.908914  0.917808  0.938375  0.927978
-XGBoost No Sampling                     0.999534  1.0       1.0       1.0
-XGBoost Over+Under-Sampling             0.999631  1.0       1.0       1.0
-XGBoost Over-Sampling                   0.99993   1.0       1.0       1.0
-XGBoost Under-Sampling                  0.95098   1.0       1.0       1.0
+                                       Cross_Val   Precision   Recall      F1
+DecisionTree No Sampling                0.999087    1.0         1.0         1.0
+DecisionTree Over+Under-Sampling        0.998593    1.0         1.0         1.0
+DecisionTree Over-Sampling              0.999756    1.0         1.0         1.0
+DecisionTree Under-Sampling             0.887964    1.0         1.0         1.0
+LogisticRegression No Sampling          0.999197    0.896154    0.652661    0.755267
+LogisticRegression Over+Under-Sampling  0.964824    0.979003    0.913769    0.945262
+LogisticRegression Over-Sampling        0.955002    0.980162    0.930028    0.954437
+LogisticRegression Under-Sampling       0.935586    0.979351    0.929972    0.954023
+RandomForest No Sampling                0.999508    1.0         1.0         1.0
+RandomForest Over+Under-Sampling        0.999832    1.0         1.0         1.0
+RandomForest Over-Sampling              0.999952    1.0         1.0         1.0
+RandomForest Under-Sampling             0.938373    1.0         1.0         1.0
+SGDClassifier No Sampling               0.999092    0.878049    0.605042    0.716418
+SGDClassifier Over+Under-Sampling       0.959045    0.984281    0.893618    0.936761
+SGDClassifier Over-Sampling             0.95414     0.978972    0.932736    0.955295
+SGDClassifier Under-Sampling            0.908914    0.917808    0.938375    0.927978
+XGBoost No Sampling                     0.999534    1.0         1.0         1.0
+XGBoost Over+Under-Sampling             0.999631    1.0         1.0         1.0
+XGBoost Over-Sampling                   0.99993     1.0         1.0         1.0
+XGBoost Under-Sampling                  0.95098     1.0         1.0         1.0
 ```
 
 The table above shows the cross-validation, **Precision**, **Recall** and **F1** values resulting from model training, allowing for several conclusions to be drawn.
@@ -125,50 +125,50 @@ The table above shows the cross-validation, **Precision**, **Recall** and **F1**
 ### Model Testing Results
 ```
 ---------- Values ----------
-                                       Precision    Recall        F1
-DecisionTree No Sampling                0.733333  0.733333  0.733333
-DecisionTree Over+Under-Sampling        0.449339  0.755556  0.563536
-DecisionTree Over-Sampling              0.741935  0.681481  0.710425
-DecisionTree Under-Sampling             0.013958  0.888889  0.027485
-LogisticRegression No Sampling          0.840426  0.585185  0.689956
-LogisticRegression Over+Under-Sampling  0.126087  0.859259  0.219905
-LogisticRegression Over-Sampling        0.070885  0.896296  0.131379
-LogisticRegression Under-Sampling       0.042732  0.903704  0.081605
-RandomForest No Sampling                0.890756  0.785185  0.834646
-RandomForest Over+Under-Sampling        0.797101  0.814815  0.805861
-RandomForest Over-Sampling              0.929825  0.785185  0.851406
-RandomForest Under-Sampling             0.056505  0.881481  0.106203
-SGDClassifier No Sampling               0.826087  0.562963  0.669604
-SGDClassifier Over+Under-Sampling       0.16259   0.837037  0.272289
-SGDClassifier Over-Sampling             0.06612   0.896296  0.123155
-SGDClassifier Under-Sampling            0.017888  0.911111  0.035088
-XGBoost No Sampling                     0.904348  0.77037   0.832
-XGBoost Over+Under-Sampling             0.705128  0.814815  0.756014
-XGBoost Over-Sampling                   0.892562  0.8       0.84375
-XGBoost Under-Sampling                  0.038826  0.911111  0.074478
+                                       Precision   Recall      F1
+DecisionTree No Sampling                0.733333    0.733333    0.733333
+DecisionTree Over+Under-Sampling        0.449339    0.755556    0.563536
+DecisionTree Over-Sampling              0.741935    0.681481    0.710425
+DecisionTree Under-Sampling             0.013958    0.888889    0.027485
+LogisticRegression No Sampling          0.840426    0.585185    0.689956
+LogisticRegression Over+Under-Sampling  0.126087    0.859259    0.219905
+LogisticRegression Over-Sampling        0.070885    0.896296    0.131379
+LogisticRegression Under-Sampling       0.042732    0.903704    0.081605
+RandomForest No Sampling                0.890756    0.785185    0.834646
+RandomForest Over+Under-Sampling        0.797101    0.814815    0.805861
+RandomForest Over-Sampling              0.929825    0.785185    0.851406
+RandomForest Under-Sampling             0.056505    0.881481    0.106203
+SGDClassifier No Sampling               0.826087    0.562963    0.669604
+SGDClassifier Over+Under-Sampling       0.16259     0.837037    0.272289
+SGDClassifier Over-Sampling             0.06612     0.896296    0.123155
+SGDClassifier Under-Sampling            0.017888    0.911111    0.035088
+XGBoost No Sampling                     0.904348    0.77037     0.832
+XGBoost Over+Under-Sampling             0.705128    0.814815    0.756014
+XGBoost Over-Sampling                   0.892562    0.8         0.84375
+XGBoost Under-Sampling                  0.038826    0.911111    0.074478
 
 ---------- Rankings ----------
-                                        F1 Rank  PR AP Rank  ROC AUC 0.001 Rank  Average Rank
-XGBoost Over-Sampling                         2           2                   1      1.666667
-XGBoost No Sampling                           4           1                   2      2.333333
-RandomForest Over-Sampling                    1           3                   3      2.333333
-RandomForest No Sampling                      3           5                   5      4.333333
-XGBoost Over+Under-Sampling                   6           4                   4      4.666667
-RandomForest Over+Under-Sampling              5           6                   6      5.666667
-LogisticRegression No Sampling                9           7                   7      7.666667
-LogisticRegression Over+Under-Sampling       13           8                   8      9.666667
-SGDClassifier Over+Under-Sampling            12          12                   9     11.000000
-SGDClassifier No Sampling                    10          11                  13     11.333333
-SGDClassifier Over-Sampling                  15           9                  10     11.333333
-LogisticRegression Over-Sampling             14          10                  12     12.000000
-DecisionTree No Sampling                      7          15                  15     12.333333
-DecisionTree Over-Sampling                    8          16                  16     13.333333
-RandomForest Under-Sampling                  16          13                  11     13.333333
-XGBoost Under-Sampling                       18          14                  14     15.333333
-DecisionTree Over+Under-Sampling             11          18                  18     15.666667
-LogisticRegression Under-Sampling            17          17                  17     17.000000
-SGDClassifier Under-Sampling                 19          19                  19     19.000000
-DecisionTree Under-Sampling                  20          20                  20     20.000000
+                                        F1 Rank  PR AP Rank  ROC AUC < 0.001 Rank  Average Rank
+XGBoost Over-Sampling                      2         2               1                1.666667
+XGBoost No Sampling                        4         1               2                2.333333
+RandomForest Over-Sampling                 1         3               3                2.333333
+RandomForest No Sampling                   3         5               5                4.333333
+XGBoost Over+Under-Sampling                6         4               4                4.666667
+RandomForest Over+Under-Sampling           5         6               6                5.666667
+LogisticRegression No Sampling             9         7               7                7.666667
+LogisticRegression Over+Under-Sampling    13         8               8                9.666667
+SGDClassifier Over+Under-Sampling         12        12               9               11.000000
+SGDClassifier No Sampling                 10        11              13               11.333333
+SGDClassifier Over-Sampling               15         9              10               11.333333
+LogisticRegression Over-Sampling          14        10              12               12.000000
+DecisionTree No Sampling                   7        15              15               12.333333
+DecisionTree Over-Sampling                 8        16              16               13.333333
+RandomForest Under-Sampling               16        13              11               13.333333
+XGBoost Under-Sampling                    18        14              14               15.333333
+DecisionTree Over+Under-Sampling          11        18              18               15.666667
+LogisticRegression Under-Sampling         17        17              17               17.000000
+SGDClassifier Under-Sampling              19        19              19               19.000000
+DecisionTree Under-Sampling               20        20              20               20.000000
 ```
 
 These two tables show the **Precision**, **Recall** and **F1** values and the rankings for each model for the three evaluation metrics, from which several conclusions can be drawn.
@@ -202,3 +202,133 @@ These two tables show the **Precision**, **Recall** and **F1** values and the ra
         - Best Overall: XGBoost Over-Sampling
         - Second Best: XGBoost No Sampling and RandomForest Over-Sampling
         - These models balance high **Precision** and **Recall** effectively, leading to superior **F1** scores and ranking performance.
+
+## Hyperparameter Optimization
+With three XGBoost models in the top five best-performing, the next step in improving fraud detection is to choose hyperparameter values which maximize **F1** values and compare them to how the default configuration performs. Information regarding the optimization techniques and their usage can be found in `utils/model_optimization.py`. The three different optimization techniques used in this study are `GridSearchCV`, `RandomizedSearchCV`, and `GASearchCV`. The parameters probed during this study are `learning_rate, n_estimators, gamma, max_depth, reg_alpha, reg_lambda`, which are optimized by cross-validation.
+
+1. GridSearchCV
+    - It is an exhaustive search over the specified parameter values for an estimator.
+    - The default parameter grid for this algorithm is 
+    ```
+        "n_estimators": [50, 100, 150],
+        "learning_rate": [0.01, 0.1, 1.],
+        "gamma": [0.1, 1., 10., 100.],
+        "max_depth": [5, 10, 15],
+        "reg_alpha": [0.1, 1., 10.],
+        "reg_lambda": [0.1, 1., 10.]
+    ```
+2. RandomizedSearchCV
+    - In contrast to GridSearchCV, not all parameter values are tried out, but rather a fixed number of parameter settings is sampled from the specified distributions. The default parameter grid for this algorithm is the same as for GridSearchCV.
+
+3. GASearchCV
+    - Models hyperparameter tuning using evolutionary algorithms. More details regarding this package can be found [here](https://github.com/rodrigo-arenas/Sklearn-genetic-opt).
+    - The default parameter grid for this algorithm is
+    ```
+        "n_estimators": Integer(50, 150),
+        "max_depth": Integer(5, 15),
+        "learning_rate": Continuous(0.01, 1., distribution="log-uniform"),
+        "gamma": Continuous(0.1, 100., distribution="log-uniform"),
+        "reg_alpha": Continuous(0.1, 10., distribution="log-uniform"),
+        "reg_lambda": Continuous(0.1, 10., distribution="log-uniform"),
+    ```
+
+Results running the command `bash run_entire_optimized_analysis.sh XGBoost_HyperParameterOptimization` will run model training and testing using XGBoost classifiers for each of the resampling techniques and all of the optimization algorithm options, plot the results, and rank the models in the same way as before. The results can be found in `results/XGBoost_HyperParameterOptimization/`. Compared to the 30 minute runtime for the default parameters, this study takes approximately 12 hours to run.
+
+### Hyperparameter Training Results
+```
+                                               Cross_Val   Precision   Recall      F1
+XGBoost No Sampling Default                     0.999534    1.0         1.0         1.0
+XGBoost No Sampling GASearchCV                  0.999554    1.0         1.0         1.0
+XGBoost No Sampling GridSearchCV                0.999534    1.0         0.991597    0.995781
+XGBoost No Sampling RandomizedSearchCV          0.999539    1.0         1.0         1.0
+XGBoost Over+Under-Sampling Default             0.999631    1.0         1.0         1.0
+XGBoost Over+Under-Sampling GASearchCV          0.999665    0.999849    1.0         0.999925
+XGBoost Over+Under-Sampling GridSearchCV        0.999615    1.0         1.0         1.0
+XGBoost Over+Under-Sampling RandomizedSearchCV  0.999615    1.0         1.0         1.0
+XGBoost Over-Sampling Default                   0.99993     1.0         1.0         1.0
+XGBoost Over-Sampling GASearchCV                0.999922    0.999995    1.0         0.999997
+XGBoost Over-Sampling GridSearchCV              0.99991     1.0         1.0         1.0
+XGBoost Over-Sampling RandomizedSearchCV        0.999894    1.0         1.0         1.0
+XGBoost Under-Sampling Default                  0.95098     1.0         1.0         1.0
+XGBoost Under-Sampling GASearchCV               0.955186    1.0         1.0         1.0
+XGBoost Under-Sampling GridSearchCV             0.95098     1.0         1.0         1.0
+XGBoost Under-Sampling RandomizedSearchCV       0.95098     1.0         1.0         1.0
+```
+
+Here are key observations from the training results:
+
+1. No Sampling
+    - High performance with nearly perfect scores for Default, GASearchCV, and RandomizedSearchCV hyperparameter configurations, whereas GridSearchCV has a slightly lower **F1** score compared to others.
+
+2. Over+Under-Sampling
+    - Slight improvement in cross-validation scores compared to "No Sampling".
+    - Default, GridSearchCV, and RandomizedSearchCV all achieve perfect **Precision**, **Recall**, and **F1** scores.
+    - GASearchCV achieved the highest cross-validation score, but is the only algorithm to not receive perfect **Precision** and **F1** scores.
+
+3. Over-Sampling
+    - Slight improvement in cross-validation scores compared to "Over+Under-Sampling".
+    - Default, GridSearchCV, and RandomizedSearchCV all achieve perfect **Precision**, **Recall**, and **F1** scores.
+    - GASearchCV once again is the only algorithm to not receive perfect **Precision** and **F1** scores, but extremely close.
+
+4. Under-Sampling
+    - Significantly lower cross-validation scorescompared to the other sampling methods.
+    - All hyperparameter configurations achieve perfect **Precision**, **Recall**, and **F1** scores, with GASearchCV obtaining the highest cross-validation score.
+
+Overall, the models with Over-Sampling achieved the highest cross-validation scores, models with "No Sampling" and "Over+Under-Sampling" achieve similar cross-validation scores, and models with Under-Sampling showed significantly lower cross-validation scores.
+
+### Hyperparameter Testing Results
+```
+---------- Values ----------
+                                               Precision   Recall      F1
+XGBoost No Sampling Default                     0.904348    0.77037     0.832
+XGBoost No Sampling GASearchCV                  0.912281    0.77037     0.835341
+XGBoost No Sampling GridSearchCV                0.912281    0.77037     0.835341
+XGBoost No Sampling RandomizedSearchCV          0.9375      0.777778    0.850202
+XGBoost Over+Under-Sampling Default             0.705128    0.814815    0.756014
+XGBoost Over+Under-Sampling GASearchCV          0.709677    0.814815    0.758621
+XGBoost Over+Under-Sampling GridSearchCV        0.733333    0.814815    0.77193
+XGBoost Over+Under-Sampling RandomizedSearchCV  0.733333    0.814815    0.77193
+XGBoost Over-Sampling Default                   0.892562    0.8         0.84375
+XGBoost Over-Sampling GASearchCV                0.891667    0.792593    0.839216
+XGBoost Over-Sampling GridSearchCV              0.889831    0.777778    0.83004
+XGBoost Over-Sampling RandomizedSearchCV        0.867769    0.777778    0.820312
+XGBoost Under-Sampling Default                  0.038826    0.911111    0.074478
+XGBoost Under-Sampling GASearchCV               0.037975    0.911111    0.07291
+XGBoost Under-Sampling GridSearchCV             0.04311     0.903704    0.082293
+XGBoost Under-Sampling RandomizedSearchCV       0.04242     0.903704    0.081036
+
+---------- Rankings ----------
+                                                F1 Rank  PR AP Rank  ROC AUC < 0.001 Rank  Average Rank
+XGBoost No Sampling GASearchCV                     4         2               1                2.333333
+XGBoost No Sampling RandomizedSearchCV             1         3               3                2.333333
+XGBoost No Sampling GridSearchCV                   5         1               2                2.666667
+XGBoost Over-Sampling Default                      2         5               4                3.666667
+XGBoost No Sampling Default                        6         4               5                5.000000
+XGBoost Over-Sampling GASearchCV                   3         6               6                5.000000
+XGBoost Over-Sampling RandomizedSearchCV           8        11               7                8.666667
+XGBoost Over+Under-Sampling GridSearchCV           9         7              10                8.666667
+XGBoost Over-Sampling GridSearchCV                 7        12               8                9.000000
+XGBoost Over+Under-Sampling RandomizedSearchCV    10         8              11                9.666667
+XGBoost Over+Under-Sampling Default               12        10               9               10.333333
+XGBoost Over+Under-Sampling GASearchCV            11         9              12               10.666667
+XGBoost Under-Sampling GridSearchCV               13        15              13               13.666667
+XGBoost Under-Sampling GASearchCV                 16        13              14               14.333333
+XGBoost Under-Sampling RandomizedSearchCV         14        16              15               15.000000
+XGBoost Under-Sampling Default                    15        14              16               15.000000
+```
+
+Key trends from the **Precision**, **Recall**, and **F1** values are stated below, as well as model rankings.
+
+1. **Precision**, **Recall**, and **F1** Scores:
+    - No Sampling methods generally perform the best, with high **Precision**, **Recall**, and **F1** scores. RandomizedSearchCV slightly outperforms the others within this group.
+    - Over-Sampling methods also show strong performance, but not quite as high as No Sampling methods. The Default and GASearchCV configurations perform the best within this group.
+    - Over+Under-Sampling methods have lower **Precision** and **F1** scores compared to No Sampling and Over-Sampling methods, though they maintain high **Recall**.
+    - Under-Sampling methods are highly ineffective, showing extremely low **Precision** and **F1** scores despite very high **Recall**. Once again, this confirms that Under-Sampling is not a suitable strategy for this dataset and problem.
+
+2. Performance Rankings:
+    - No Sampling methods (especially with GASearchCV and RandomizedSearchCV) are the top performers, showing consistent and strong performance across all three metrics.
+    - Over-Sampling methods, particularly the Default and GASearchCV configurations, also perform well, though slightly behind the best No Sampling methods.
+    - Over+Under-Sampling methods generally show moderate to lower performance, with some configurations like GridSearchCV and Default performing better than others.
+    - Under-Sampling methods are the worst performers, with consistently poor rankings across all metrics. This reinforces the previous observation that under-sampling is not effective for this dataset and problem.
+
+In summary, the most effective strategies are No Sampling when combined with any of the optimization techniques studied, but the GASearchCV and RandomizedSearchCV are especially preferred when taking computing time into account. Under-Sampling should be avoided due to its poor performance.
