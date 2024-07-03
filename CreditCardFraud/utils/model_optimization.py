@@ -1,6 +1,8 @@
 from pdb import set_trace
-
+import os
 from sklearn.base import clone # needed for 'initializing' models for each resampling method
+import utils.analysis_steps as an_steps
+import mlflow
 
 def optimize_geneticsearchcv(classifier, X_train, y_train, param_grid=None, X_test=None, y_test=None):
     from sklearn_genetic import GASearchCV
@@ -15,7 +17,7 @@ def optimize_geneticsearchcv(classifier, X_train, y_train, param_grid=None, X_te
     }
 
     def_model = clone(classifier)
-        #GridSearch instance of current iteration
+
     clf = GASearchCV(estimator=def_model, param_grid=def_param_grid if param_grid is None else param_grid,
             scoring="f1", return_train_score=True, verbose=True, cv=5, n_jobs=-1, generations=10)
     clf.fit(X_train, y_train)
@@ -35,6 +37,7 @@ def optimize_randomizedsearchcv(classifier, X_train, y_train, param_grid=None, X
     }
 
     def_model = clone(classifier)
+
         #GridSearch instance of current iteration
     clf = RandomizedSearchCV(estimator=def_model, param_distributions=def_param_grid if param_grid is None else param_grid,
             n_iter=100, scoring="f1", return_train_score=True, verbose=1, cv=5, n_jobs=-1)
@@ -58,6 +61,7 @@ def optimize_gridsearchcv(classifier, X_train, y_train, param_grid=None, X_test=
     }
 
     def_model = clone(classifier)
+
         #GridSearch instance of current iteration
     clf = GridSearchCV(estimator=def_model, param_grid=def_param_grid if param_grid is None else param_grid,
             scoring="f1", return_train_score=True, verbose=1, cv=5, n_jobs=-1)
