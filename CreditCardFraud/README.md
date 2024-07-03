@@ -36,7 +36,7 @@ This project utilizes the “Credit Card Fraud Detection” [dataset](https://ww
 
     **Confusion Matrices** for binary classification are also created during training and testing, which are graphical representations of how models classify data as True Positives, True Negatives, False Positives, and False Negatives.
 
-5. Rank each of the 20 models based on their testing performance in the **F1**, **PR AP**, and **ROC AUC 0.001** metrics and choose the best model by using a weighted average of these rankings. Since this analysis does not take into account any specific cost or risk factors that come with misidentifying fraudulent and normal transactions, the three metrics are equally weighted.
+5. Rank each of the 20 models based on their testing performance in the **F1**, **PR AP**, and **ROC AUC < 0.001** metrics and choose the best model by using a weighted average of these rankings. Since this analysis does not take into account any specific cost or risk factors that come with misidentifying fraudulent and normal transactions, the three metrics are equally weighted.
 
 ## Running the Code
 1. Get the data.
@@ -69,7 +69,7 @@ This project utilizes the “Credit Card Fraud Detection” [dataset](https://ww
 
     Plots of **Confusion Matrices**, **Precision-Recall** curves, **ROC** curves, and other metrics (**F1**, **precision**, **recall**, **cross-validation**) are output in the `results/jobdir/Training/` or `results/jobdir/Testing/` directories, with subdirectories corresponding to the specified grouping.
 
-7. Rank the models based on their testing performance across several different metrics, equally weighing the **F1**, **PR AP**, and **ROC AUC 0.001** values.
+7. Rank the models based on their testing performance across several different metrics, equally weighing the **F1**, **PR AP**, and **ROC AUC < 0.001** values.
     - Run the command `python src/rank_models.py jobdir`.
 
 8. Run steps 4-7 in one command (optional):
@@ -261,12 +261,12 @@ Here are key observations from the training results:
     - High performance with nearly perfect scores for Default, GASearchCV, and RandomizedSearchCV hyperparameter configurations, whereas GridSearchCV has a slightly lower **F1** score compared to others.
 
 2. Over+Under-Sampling
-    - Slight improvement in cross-validation scores compared to "No Sampling".
+    - Slight improvement in cross-validation scores compared to No Sampling.
     - Default, GridSearchCV, and RandomizedSearchCV all achieve perfect **Precision**, **Recall**, and **F1** scores.
     - GASearchCV achieved the highest cross-validation score, but is the only algorithm to not receive perfect **Precision** and **F1** scores.
 
 3. Over-Sampling
-    - Slight improvement in cross-validation scores compared to "Over+Under-Sampling".
+    - Slight improvement in cross-validation scores compared to Over+Under-Sampling.
     - Default, GridSearchCV, and RandomizedSearchCV all achieve perfect **Precision**, **Recall**, and **F1** scores.
     - GASearchCV once again is the only algorithm to not receive perfect **Precision** and **F1** scores, but extremely close.
 
@@ -274,7 +274,7 @@ Here are key observations from the training results:
     - Significantly lower cross-validation scorescompared to the other sampling methods.
     - All hyperparameter configurations achieve perfect **Precision**, **Recall**, and **F1** scores, with GASearchCV obtaining the highest cross-validation score.
 
-Overall, the models with Over-Sampling achieved the highest cross-validation scores, models with "No Sampling" and "Over+Under-Sampling" achieve similar cross-validation scores, and models with Under-Sampling showed significantly lower cross-validation scores.
+Overall, the models with Over-Sampling achieved the highest cross-validation scores, models with No Sampling and Over+Under-Sampling achieve similar cross-validation scores, and models with Under-Sampling showed significantly lower cross-validation scores.
 
 ### Hyperparameter Testing Results
 ```
