@@ -48,7 +48,6 @@ def get_data(meta_info):
 
 # Create a new MLflow Experiment
 import mlflow
-mlflow.set_experiment("Default Credit Card Fraud Models")
 mlflow_artifact_path = "credit_card_fraud"
 
 def models_logging(data_type, input_clf, X, y, model_params, no_results=False, optimize=False):
@@ -85,7 +84,7 @@ def models_logging(data_type, input_clf, X, y, model_params, no_results=False, o
     eval_data["label"] = y.copy()
 
     # Start an MLflow run
-    with mlflow.start_run(nested=optimize):
+    with mlflow.start_run(nested=False):
         # Log the hyperparameters
         mlflow.log_params(model_params)
 
@@ -112,13 +111,14 @@ def models_logging(data_type, input_clf, X, y, model_params, no_results=False, o
 
         # evaluate the logged model
         model_uri = mlflow.get_artifact_uri(mlflow_artifact_path)
-        result = mlflow.evaluate(
+        mlflow.evaluate(
             model_uri,
             eval_data,
             targets="label",
             model_type="classifier",
             evaluators="default",
-            evaluator_config={"log_model_explainability": not ((model_params["Classifier"] == "DecisionTree") or (model_params["Classifier"] == "RandomForest"))},
+            evaluator_config={"log_model_explainability": False if optimize else not ((model_params["Classifier"] == "DecisionTree") or (model_params["Classifier"] == "RandomForest"))},
+
         )
 
     if not no_results:
